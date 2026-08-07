@@ -112,8 +112,8 @@ footer{text-align:center;font-family:"DM Mono",monospace;font-size:10px;letter-s
 
     <div class="zoomrow"><label style="margin:16px 0 6px">Zoom</label></div>
     <input id="zoom" type="range" min="100" max="260" value="112"/>
-    <div class="row"><div><label>Nudge X</label><input id="px" type="range" min="-100" max="100" value="0"/></div>
-    <div><label>Nudge Y</label><input id="py" type="range" min="-100" max="100" value="0"/></div></div>
+    <input id="px" type="range" min="-100" max="100" value="0" class="hide"/>
+    <input id="py" type="range" min="-100" max="100" value="0" class="hide"/>
     <button id="autoCenter" style="
       width:100%;margin-top:8px;padding:9px 12px;
       border:2px solid var(--leaf);border-radius:999px;background:transparent;
@@ -141,13 +141,13 @@ footer{text-align:center;font-family:"DM Mono",monospace;font-size:10px;letter-s
 
   <div class="stage">
     <div class="stage-inner">
-      <canvas id="cv" width="1080" height="1080"></canvas>
+      <canvas id="cv" width="1080" height="1080" style="cursor:grab"></canvas>
       <canvas id="scanOverlay"></canvas>
     </div>
     <div class="empty hide" id="empty">YOUR PHOTO GOES HERE</div>
   </div>
 </div>
-<p class="hint" id="hint">Tip: after downloading, attach the image to the pre-filled post.</p>
+<p class="hint" id="hint">Tip: drag the photo inside the frame to reposition it. After downloading, attach the image to the pre-filled post.</p>
 <footer>#FRAMEINGOA · HACKER HOUSE GOA 2026</footer>
 </div>
 
@@ -996,6 +996,72 @@ $("share").onclick=async()=>{
 document.fonts.ready.then(()=>{ready=true;render();checkReady()});
 setMode("pfp");
 checkReady();
+
+/* ── Drag-to-pan photo inside the frame ──────────────────────────
+   Works with both mouse (laptop) and touch (mobile).
+   We track delta in canvas-coordinate space so the photo moves
+   1:1 with the finger / cursor regardless of display scale.         */
+(function(){
+  let dragging=false, lastX=0, lastY=0;
+
+  // Convert a client {x,y} to canvas coordinate space
+  function toCanvas(clientX, clientY){
+    const rect=cv.getBoundingClientRect();
+    const scaleX=cv.width/rect.width, scaleY=cv.height/rect.height;
+    return {x:(clientX-rect.left)*scaleX, y:(clientY-rect.top)*scaleY};
+  }
+
+  // Convert a canvas-space delta to nudge-slider units
+  // PFP: slider unit = R * 0.01   (R=286)
+  // ID:  slider unit = pw/2 * 0.01 (pw=352) for X, ph/2*0.01 for Y
+  function deltaToNudge(dcx, dcy){
+    if(mode==="pfp"){
+      const R=286;
+      return {dx: dcx/(R*0.01), dy: dcy/(R*0.01)};
+    } else {
+      const pw=352, ph=422;
+      return {dx: dcx/((pw/2)*0.01), dy: dcy/((ph/2)*0.01)};
+    }
+  }
+
+  function onStart(clientX, clientY){
+    if(!currentImg()) return;
+    dragging=true;
+    const c=toCanvas(clientX,clientY);
+    lastX=c.x; lastY=c.y;
+    cv.style.cursor="grabbing";
+  }
+
+  function onMove(clientX, clientY){
+    if(!dragging) return;
+    const c=toCanvas(clientX,clientY);
+    const dcx=c.x-lastX, dcy=c.y-lastY;
+    lastX=c.x; lastY=c.y;
+    const {dx,dy}=deltaToNudge(dcx,dcy);
+    const pxEl=$("px"), pyEl=$("py");
+    const newPx=Math.max(+pxEl.min, Math.min(+pxEl.max, +pxEl.value+dx));
+    const newPy=Math.max(+pyEl.min, Math.min(+pyEl.max, +pyEl.value+dy));
+    pxEl.value=newPx; pyEl.value=newPy;
+    render();
+  }
+
+  function onEnd(){
+    if(!dragging) return;
+    dragging=false;
+    cv.style.cursor="grab";
+  }
+
+  // Mouse events
+  cv.addEventListener("mousedown",  e=>{ onStart(e.clientX,e.clientY); e.preventDefault(); });
+  window.addEventListener("mousemove", e=>{ if(dragging) onMove(e.clientX,e.clientY); });
+  window.addEventListener("mouseup",   ()=>onEnd());
+
+  // Touch events (mobile)
+  cv.addEventListener("touchstart",  e=>{ if(e.touches.length===1){ onStart(e.touches[0].clientX,e.touches[0].clientY); e.preventDefault(); }},{passive:false});
+  cv.addEventListener("touchmove",   e=>{ if(e.touches.length===1){ onMove(e.touches[0].clientX,e.touches[0].clientY); e.preventDefault(); }},{passive:false});
+  cv.addEventListener("touchend",    ()=>onEnd());
+  cv.addEventListener("touchcancel", ()=>onEnd());
+})();
 </script>
 </body>
 </html>
