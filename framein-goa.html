@@ -25,44 +25,68 @@ body{
   color:var(--cream); font-family:"Space Grotesk",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased; padding:0 0 64px;
 }
-.wrap{max-width:980px;margin:0 auto;padding:22px 16px}
-header{text-align:center;padding:26px 0 8px}
+.wrap{max-width:980px;margin:0 auto;padding:16px 14px}
+header{text-align:center;padding:20px 0 6px}
 .kicker{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.28em;color:var(--sun);text-transform:uppercase}
-h1{font-family:"Alfa Slab One",serif;font-size:clamp(30px,7.4vw,58px);line-height:1;margin:12px 0 6px;color:var(--paper);
+h1{font-family:"Alfa Slab One",serif;font-size:clamp(26px,7vw,58px);line-height:1;margin:10px 0 6px;color:var(--paper);
    text-shadow:3px 3px 0 var(--pink)}
 h1 em{font-style:normal;color:var(--sun)}
-.sub{font-size:14px;opacity:.82;margin:0}
-.tabs{display:flex;gap:8px;justify-content:center;margin:24px 0 18px}
-.tab{flex:1;max-width:220px;padding:12px 10px;border:2px solid rgba(247,239,216,.35);border-radius:999px;background:transparent;
-  color:var(--cream);font:600 13px/1 "Space Grotesk";letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:.18s}
+.sub{font-size:clamp(12px,3.2vw,14px);opacity:.82;margin:0}
+/* ── Tabs ── */
+.tabs{display:flex;gap:8px;justify-content:center;margin:18px 0 14px}
+.tab{flex:1;max-width:200px;padding:11px 10px;border:2px solid rgba(247,239,216,.35);border-radius:999px;background:transparent;
+  color:var(--cream);font:600 12px/1 "Space Grotesk";letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:.18s;touch-action:manipulation}
 .tab[aria-selected="true"]{background:var(--sun);border-color:var(--sun);color:var(--ink)}
 .tab:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
-.grid{display:grid;grid-template-columns:1fr;gap:18px}
-@media(min-width:840px){.grid{grid-template-columns:340px 1fr;align-items:start}}
-.panel{background:var(--paper);color:var(--ink);border:3px solid var(--forest);border-radius:22px;padding:18px;
-  box-shadow:0 10px 0 rgba(0,0,0,.28)}
-label{display:block;font:600 11px/1 "Space Grotesk";letter-spacing:.16em;text-transform:uppercase;color:var(--leaf);margin:14px 0 6px}
-input,select{width:100%;padding:12px 14px;border:2px solid var(--forest);border-radius:12px;background:#fff;font:500 15px "Space Grotesk";color:var(--ink)}
+/* ── Layout grid ── */
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:800px){.grid{grid-template-columns:320px 1fr;align-items:center;gap:20px}}
+@media(min-width:920px){.grid{grid-template-columns:350px 1fr;align-items:center}}
+/* ── Panel ── */
+.panel{background:var(--paper);color:var(--ink);border:3px solid var(--forest);border-radius:20px;padding:16px;
+  box-shadow:0 8px 0 rgba(0,0,0,.28)}
+label{display:block;font:600 10px/1 "Space Grotesk";letter-spacing:.16em;text-transform:uppercase;color:var(--leaf);margin:12px 0 5px}
+input,select{width:100%;padding:11px 13px;border:2px solid var(--forest);border-radius:11px;background:#fff;
+  font:500 15px "Space Grotesk";color:var(--ink);-webkit-appearance:none;appearance:none}
 input:focus,select:focus{outline:3px solid var(--pink);outline-offset:1px}
-.drop{border:2.5px dashed var(--leaf);border-radius:16px;padding:22px 14px;text-align:center;background:#FFFDF6;cursor:pointer}
+/* ── Drop zone ── */
+.drop{border:2.5px dashed var(--leaf);border-radius:14px;padding:20px 12px;text-align:center;background:#FFFDF6;cursor:pointer;transition:.15s}
 .drop.on{background:#FFF3C9;border-color:var(--pink)}
-.drop strong{display:block;font-family:"Bebas Neue";font-size:22px;letter-spacing:.04em}
-.drop span{font-size:12px;opacity:.7}
-.row{display:flex;gap:10px}.row>*{flex:1}
-.btns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-button.act{flex:1;min-width:140px;padding:14px 16px;border:0;border-radius:999px;font:700 14px "Space Grotesk";letter-spacing:.05em;
-  text-transform:uppercase;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.drop strong{display:block;font-family:"Bebas Neue";font-size:20px;letter-spacing:.04em}
+.drop span{font-size:11px;opacity:.7}
+/* ── Controls ── */
+.row{display:flex;gap:8px}.row>*{flex:1}
+.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+button.act{flex:1;min-width:120px;padding:14px 12px;border:0;border-radius:999px;
+  font:700 13px "Space Grotesk";letter-spacing:.05em;text-transform:uppercase;
+  cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.3);touch-action:manipulation}
 .dl{background:var(--sun);color:var(--ink)} .sh{background:var(--pink);color:#fff}
 button.act:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
 button.act:disabled{opacity:.38;cursor:not-allowed;transform:none;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+/* ── Stage / canvas ── */
 .stage{display:flex;justify-content:center;align-items:flex-start}
-canvas{width:100%;height:auto;max-width:520px;border-radius:20px;display:block;box-shadow:0 14px 0 rgba(0,0,0,.3)}
-.hint{font-family:"DM Mono",monospace;font-size:11px;color:var(--cream);opacity:.7;text-align:center;margin-top:14px}
+.stage-inner{position:relative;width:100%;max-width:480px}
+canvas#cv{width:100%;height:auto;border-radius:18px;display:block;box-shadow:0 12px 0 rgba(0,0,0,.3)}
+canvas#scanOverlay{position:absolute;top:0;left:0;width:100%;height:100%;border-radius:18px;pointer-events:none}
+/* ── Misc ── */
+.hint{font-family:"DM Mono",monospace;font-size:11px;color:var(--cream);opacity:.7;text-align:center;margin-top:12px}
 .hide{display:none}
-.zoomrow{display:flex;align-items:center;gap:10px}
-input[type=range]{padding:0;border:0;background:transparent;accent-color:var(--pink)}
-footer{text-align:center;font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.14em;opacity:.6;margin-top:34px}
-.empty{border:2px dashed rgba(247,239,216,.4);border-radius:20px;padding:60px 20px;text-align:center;font-family:"DM Mono",monospace;font-size:12px;letter-spacing:.1em;opacity:.75;width:100%;max-width:520px}
+.zoomrow{display:flex;align-items:center;gap:8px}
+input[type=range]{padding:0;border:0;background:transparent;accent-color:var(--pink);width:100%}
+footer{text-align:center;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.14em;opacity:.55;margin-top:28px}
+.empty{border:2px dashed rgba(247,239,216,.4);border-radius:18px;padding:50px 16px;text-align:center;
+  font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.1em;opacity:.75;width:100%;max-width:480px}
+/* ── Mobile tweaks ── */
+@media(max-width:480px){
+  .wrap{padding:12px 10px}
+  header{padding:14px 0 4px}
+  .tabs{margin:14px 0 10px}
+  .tab{font-size:11px;padding:10px 8px}
+  .panel{padding:12px}
+  .btns{flex-direction:column}
+  button.act{min-width:unset;width:100%}
+  .row{gap:6px}
+}
 </style>
 </head>
 <body>
@@ -90,14 +114,20 @@ footer{text-align:center;font-family:"DM Mono",monospace;font-size:11px;letter-s
     <input id="zoom" type="range" min="100" max="260" value="112"/>
     <div class="row"><div><label>Nudge X</label><input id="px" type="range" min="-100" max="100" value="0"/></div>
     <div><label>Nudge Y</label><input id="py" type="range" min="-100" max="100" value="0"/></div></div>
+    <button id="autoCenter" style="
+      width:100%;margin-top:8px;padding:9px 12px;
+      border:2px solid var(--leaf);border-radius:999px;background:transparent;
+      color:var(--leaf);font:600 11px/1 'Space Grotesk';letter-spacing:.12em;
+      text-transform:uppercase;cursor:pointer;transition:.15s;touch-action:manipulation;
+    ">✦ Auto-centre photo</button>
 
     <div id="idFields">
       <label for="name">Name</label>
-      <input id="name" maxlength="22" placeholder="Nayan Baheti"/>
+      <input id="name" maxlength="22" placeholder="Your Name"/>
       <label for="role">Stack / role</label>
-      <input id="role" maxlength="26" placeholder="Data Engineer"/>
+      <input id="role" maxlength="26" placeholder="Your Stack / Role"/>
       <label for="shipping">Currently shipping</label>
-      <input id="shipping" maxlength="24" placeholder="Building the future"/>
+      <input id="shipping" maxlength="24" placeholder="What you're building"/>
       <label for="cls">Builder class</label>
       <select id="cls"><option value="">Auto-generate from name</option></select>
     </div>
@@ -110,9 +140,9 @@ footer{text-align:center;font-family:"DM Mono",monospace;font-size:11px;letter-s
   </div>
 
   <div class="stage">
-    <div style="position:relative;width:100%;max-width:520px">
-      <canvas id="cv" width="1080" height="1080" style="width:100%;height:auto;border-radius:20px;display:block;box-shadow:0 14px 0 rgba(0,0,0,.3)"></canvas>
-      <canvas id="scanOverlay" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:20px;pointer-events:none"></canvas>
+    <div class="stage-inner">
+      <canvas id="cv" width="1080" height="1080"></canvas>
+      <canvas id="scanOverlay"></canvas>
     </div>
     <div class="empty hide" id="empty">YOUR PHOTO GOES HERE</div>
   </div>
@@ -147,8 +177,9 @@ const $=id=>document.getElementById(id);
 CLASSES.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;$("cls").appendChild(o)});
 
 function hash(s){let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h}
-function autoClass(n){return CLASSES[hash(n||"builder")%CLASSES.length]}
-function builderId(n){return "#HH-GOA-"+String(1+hash(n||"goa")%247).padStart(3,"0")}
+function combinedHash(n,r,s){return hash((n||"builder")+"|"+(r||"")+"|"+(s||""))}
+function autoClass(n,r,s){return CLASSES[combinedHash(n,r,s)%CLASSES.length]}
+function builderId(n,r,s){return "#HH-GOA-"+String(1+combinedHash(n,r,s)%247).padStart(3,"0")}
 
 /* ---- QR via qrcode-generator library (auto version, handles long URLs) ---- */
 function makeQRCanvas(text, x, y, size, darkColor, lightColor){
@@ -392,7 +423,7 @@ function drawID(){
   const name=($("name").value||"YOUR NAME").toUpperCase();
   const role=($("role").value||"BUILDER").toUpperCase();
   const ship=($("shipping").value||"BUILDING THE FUTURE").toUpperCase();
-  const cls=($("cls").value||autoClass(name)).toUpperCase();
+  const cls=($("cls").value||autoClass(name,role,ship)).toUpperCase();
   ctx.clearRect(0,0,W,H);
 
   ctx.save();rr(14,14,W-28,H-28,64);ctx.fillStyle=FOREST;ctx.fill();ctx.restore();
@@ -450,7 +481,7 @@ function drawID(){
   field(304,120,"NAME",name,FOREST,40);
   field(438,100,"STACK / ROLE",role,PINK,28);
   field(552,100,"BUILDER CLASS",cls,PINK,28);
-  field(666,86,"BUILDER ID",hasName?builderId(name):"—",INK,26);
+  field(666,86,"BUILDER ID",hasName?builderId(name,role,ship):"—",INK,26);
 
   /* ---- 3. SHIPPING STRIP ---- */
   ctx.save();rr(88,772,W-176,104,26);ctx.fillStyle=FOREST;ctx.fill();
@@ -477,7 +508,7 @@ function drawID(){
   /* ---- 6. STUB: QR scanner slot (left) + stub meta (right) ---- */
   const sy=1074;
   const qrFrame=176, qrPad=10;
-  const bid=hasName?builderId(name):null;
+  const bid=hasName?builderId(name,role,ship):null;
   const bidNum=bid?bid.replace("#HH-GOA-",""):"";
 
   // outer card for QR area
@@ -534,7 +565,7 @@ function drawID(){
   const stubX=qrCardX+qrCardW+18, stubW=W-stubX-90;
   txt("ADMIT ONE BUILDER",stubX+stubW/2,sy+42,"700 17px 'Space Grotesk'",LEAF,"center",3);
   fitTxt(name,stubX+stubW/2,sy+92,stubW-40,40,"__ 'Bebas Neue'",FOREST,3);
-  if(hasName){
+  if(hasName && !window._alreadyRegistered){
     // barcode with scanner line overlay
     const bcX=stubX+20, bcY=sy+160, bcW=stubW-40, bcH=52;
     barcode(bcX,bcY,bcW,bcH,hash(name)+13);
@@ -650,6 +681,9 @@ function setMode(m){mode=m;
   $("dropTitle").textContent=(m==="pfp")
     ? (imgPfp?"PFP photo — tap to change":"Upload your PFP photo")
     : (imgId?"Builder ID photo — tap to change":"Upload your Builder ID photo");
+  // reset nudge and recalculate bounds for this mode's frame dimensions
+  $("px").value=0; $("py").value=0;
+  clampNudge();
   render();checkReady()}
 
 const drop=$("drop"),fileIn=$("file");
@@ -673,13 +707,104 @@ async function load(file){
   }
   const url=URL.createObjectURL(blob), im=new Image();
   im.onload=()=>{setCurrentImg(im);ready=true;URL.revokeObjectURL(url);
-    $("dropTitle").textContent="Photo added — tap to change";render();checkReady()};
+    $("dropTitle").textContent="Photo added — tap to change";
+    // reset nudge to 0 for fresh photo, then clamp to valid range
+    $("px").value=0; $("py").value=0;
+    clampNudge();
+    render();checkReady()};
   im.onerror=()=>{$("dropTitle").textContent="That file didn't open — try another photo"};
   im.src=url;
 }
 
 ["zoom","px","py","name","role","shipping","cls"].forEach(id=>{
-  $(id).addEventListener("input",()=>{render();checkReady()})});
+  $(id).addEventListener("input",()=>{
+    // re-clamp nudge after zoom change so bg never shows
+    if(id==="zoom") clampNudge();
+    window._alreadyRegistered=false;render();checkReady()
+  })});
+
+/* ── Clamp nudge sliders so photo edge never exceeds frame edge ─────
+   PFP:  dx = px/100 * R  → max_dx = (scaledW/2 - R)  → max_px = max_dx/R*100
+   ID:   dx = px/100 * pw/2 → max_dx = (scaledW/2 - pw/2) → max_px = max_dx/(pw/2)*100
+   If image is smaller than slot (shouldn't happen with zoom≥100 but guard anyway) clamp to 0. */
+function clampNudge(){
+  const im = currentImg();
+  if(!im){ ["px","py"].forEach(id=>{$(id).min=-100;$(id).max=100});return; }
+  const z = +$("zoom").value/100;
+
+  let maxX, maxY;
+  if(mode==="pfp"){
+    const R = 286; // must match drawPFP
+    const s = Math.max(2*R/im.width, 2*R/im.height)*z;
+    const scaledW = im.width*s, scaledH = im.height*s;
+    // slack in canvas px, then convert to slider units (slider unit = R * 0.01)
+    const slackX = Math.max(0, scaledW/2 - R);
+    const slackY = Math.max(0, scaledH/2 - R);
+    maxX = Math.floor(slackX / R * 100);
+    maxY = Math.floor(slackY / R * 100);
+  } else {
+    const pw=352, ph=422; // must match drawID
+    const s = Math.max(pw/im.width, ph/im.height)*z;
+    const scaledW = im.width*s, scaledH = im.height*s;
+    // slider unit = pw/2 * 0.01 for X,  ph/2 * 0.01 for Y
+    const slackX = Math.max(0, scaledW/2 - pw/2);
+    const slackY = Math.max(0, scaledH/2 - ph/2);
+    maxX = Math.floor(slackX / (pw/2) * 100);
+    maxY = Math.floor(slackY / (ph/2) * 100);
+  }
+
+  // Update slider bounds
+  $("px").min = -maxX; $("px").max = maxX;
+  $("py").min = -maxY; $("py").max = maxY;
+  // Re-clamp current values if they're now out of range
+  $("px").value = Math.max(-maxX, Math.min(maxX, +$("px").value));
+  $("py").value = Math.max(-maxY, Math.min(maxY, +$("py").value));
+}
+
+/* ── Auto-centre: brightness-weighted centroid ─────────────────────
+   Samples the image at low resolution, finds the "heavy" region
+   (faces / subjects are brighter and have more contrast), then
+   maps that centroid offset back into the -100…100 nudge range.    */
+function autoCentre(){
+  const im = currentImg();
+  if(!im) return;
+
+  const SAMPLE = 80; // low-res sample size for speed
+  const tmp = document.createElement("canvas");
+  tmp.width = SAMPLE; tmp.height = SAMPLE;
+  const tc = tmp.getContext("2d");
+  tc.drawImage(im, 0, 0, SAMPLE, SAMPLE);
+  const data = tc.getImageData(0, 0, SAMPLE, SAMPLE).data;
+
+  // Weight each pixel by its luminance
+  let sumW=0, sumX=0, sumY=0;
+  for(let i=0; i<SAMPLE*SAMPLE; i++){
+    const r=data[i*4], g=data[i*4+1], b=data[i*4+2];
+    const lum = 0.299*r + 0.587*g + 0.114*b;
+    // Use lum² so bright areas dominate (subjects/faces > dark backgrounds)
+    const w = lum * lum;
+    const px2 = i % SAMPLE, py2 = Math.floor(i / SAMPLE);
+    sumW += w; sumX += px2 * w; sumY += py2 * w;
+  }
+  if(sumW === 0) return;
+
+  // Centroid in 0..1 space, shifted relative to image centre (0.5, 0.5)
+  const cx = sumX / sumW / SAMPLE; // 0..1
+  const cy = sumY / sumW / SAMPLE;
+  const offX = cx - 0.5; // -0.5..0.5
+  const offY = cy - 0.5;
+
+  // Map to nudge range (-100..100). Negate: if subject is right of centre
+  // we nudge left to bring it to centre.
+  const nudgeX = Math.round(-offX * 200);
+  const nudgeY = Math.round(-offY * 200);
+
+  $("px").value = Math.max(+$("px").min, Math.min(+$("px").max, nudgeX));
+  $("py").value = Math.max(+$("py").min, Math.min(+$("py").max, nudgeY));
+  render();
+}
+
+$("autoCenter").onclick = autoCentre;
 
 function filename(){return (mode==="pfp"?"hhgoa-2026-pfp":"hhgoa-2026-builder-id")+".png"}
 function blobOut(){return new Promise(r=>cv.toBlob(r,"image/png"))}
@@ -688,7 +813,7 @@ function blobOut(){return new Promise(r=>cv.toBlob(r,"image/png"))}
 async function builderExists(bidNum){
   try{
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/builders?id=eq.${encodeURIComponent(bidNum)}&select=id,name`,
+      `${SUPABASE_URL}/rest/v1/builders?id=eq.${encodeURIComponent(bidNum)}&select=id,name,role,shipping`,
       { headers:{
           "apikey":        SUPABASE_ANON_KEY,
           "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
@@ -765,21 +890,33 @@ async function saveBuilder(){
   if(!nameVal) return false;
 
   const nameUp  = nameVal.toUpperCase();
-  const bid     = builderId(nameUp);
+  const roleVal = ($("role").value||"").trim().toUpperCase();
+  const shipVal = ($("shipping").value||"").trim().toUpperCase();
+  const bid     = builderId(nameUp, roleVal, shipVal);
   const bidNum  = bid.replace("#HH-GOA-","");
-  const cls     = ($("cls").value||autoClass(nameUp)).toUpperCase();
+  const cls     = ($("cls").value||autoClass(nameUp, roleVal, shipVal)).toUpperCase();
 
   // check if this ID already exists
   const existing = await builderExists(bidNum);
 
   if(existing){
-    if(existing.name === nameUp){
-      showToast("Welcome back, " + nameVal + " 👋", "success");
+    const sameEntry  = existing.name     === nameUp
+                    && existing.role     === roleVal
+                    && existing.shipping === shipVal;
+
+    if(sameEntry){
+      // exact duplicate — already registered, block and show message
+      window._alreadyRegistered = true;
+      render(); // redraw without barcode/scanner
+      showToast("Already registered! " + bid, "error");
+      return false;
     } else {
+      // same hash → same ID number but different details → ID collision, block
       showToast("Builder ID " + bid + " is already taken — try a slightly different name", "error");
       return false;
     }
   }
+  window._alreadyRegistered = false;
 
   // get compressed photo base64
   const photo = await photoToBase64();

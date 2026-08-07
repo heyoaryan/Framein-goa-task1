@@ -10,42 +10,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bebas+Neue&family=DM+Mono:wght@500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
-:root{--cream:#F7EFD8;--paper:#FDF8EC;--forest:#0E3B2A;--leaf:#1B6B43;--pink:#E51A5A;--sun:#FFC72C;--ink:#0B2A1E}
-*{box-sizing:border-box}html,body{margin:0;padding:0;min-height:100vh}
+:root{
+  --cream:#F7EFD8;--paper:#FDF8EC;--forest:#0E3B2A;--leaf:#1B6B43;
+  --pink:#E51A5A;--sun:#FFC72C;--ink:#0B2A1E;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100vh}
 body{
   background:var(--forest);
-  background-image:radial-gradient(120% 60% at 50% -10%,#17553B 0%,rgba(23,85,59,0) 60%),
+  background-image:
+    radial-gradient(120% 60% at 50% -10%,#17553B 0%,rgba(23,85,59,0) 60%),
     repeating-linear-gradient(135deg,rgba(255,255,255,.028) 0 14px,rgba(0,0,0,0) 14px 28px);
-  color:var(--cream);font-family:"Space Grotesk",system-ui,sans-serif;
+  color:var(--cream);
+  font-family:"Space Grotesk",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:100vh;padding:32px 16px 64px;
+  display:flex;flex-direction:column;align-items:center;
+  min-height:100vh;padding:28px 14px 60px;
 }
-.state{text-align:center;font-family:"DM Mono",monospace;letter-spacing:.12em}
-.state .icon{font-size:48px;margin-bottom:16px}
-.state h2{font-family:"Alfa Slab One",serif;font-size:28px;color:var(--sun);margin:0 0 8px}
-.state p{font-size:13px;opacity:.7;margin:0}
-.wrap{width:100%;max-width:560px;display:flex;flex-direction:column;align-items:center;gap:24px}
+/* Card container */
+#root{width:100%;max-width:520px}
+/* Canvas full-width responsive */
 canvas{width:100%;height:auto;border-radius:20px;display:block;box-shadow:0 14px 0 rgba(0,0,0,.35)}
+/* CTA button */
 .cta{
-  width:100%;padding:18px 24px;background:var(--pink);color:#fff;
-  border:0;border-radius:999px;font-family:"Space Grotesk",sans-serif;
-  font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;
-  cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.3);text-decoration:none;
-  display:block;text-align:center;transition:.15s;
+  width:100%;padding:16px 24px;background:var(--pink);color:#fff;
+  border:0;border-radius:999px;font:700 15px "Space Grotesk",sans-serif;
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
+  box-shadow:0 5px 0 rgba(0,0,0,.3);text-decoration:none;
+  display:block;text-align:center;transition:.15s;touch-action:manipulation;
 }
-.cta:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
-.hint{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.12em;opacity:.6;text-align:center}
+.cta:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+/* Mobile */
+@media(max-width:480px){
+  body{padding:20px 10px 48px}
+  canvas{border-radius:14px}
+}
 </style>
 </head>
 <body>
 <div id="root">
-  <div class="state" id="stateLoading">
-    <div class="icon">⏳</div>
-    <h2>Verifying…</h2>
-    <p>Fetching builder data</p>
+  <div id="stateLoading" style="text-align:center;font-family:'DM Mono',monospace;letter-spacing:.12em;padding-top:80px">
+    <div style="font-size:48px;margin-bottom:16px">⏳</div>
+    <h2 style="font-family:'Alfa Slab One',serif;font-size:28px;color:var(--sun);margin:0 0 8px">Verifying…</h2>
+    <p style="font-size:13px;opacity:.7;margin:0">Fetching builder data</p>
   </div>
 </div>
+
 <script>
 // ─── CONFIG ────────────────────────────────────────────────────────
 const SUPABASE_URL      = "https://fxxnnvnplwnalplsxivf.supabase.co";
@@ -55,19 +65,23 @@ const VERIFY_URL        = SITE_URL + "/verify.html";
 // ───────────────────────────────────────────────────────────────────
 
 const CREAM="#F7EFD8",PAPER="#FDF8EC",FOREST="#0E3B2A",LEAF="#1B6B43",
-      PINK="#E51A5A",SUN="#FFC72C",INK="#0B2A1E",SAND="#F2E2BC";
+      PINK="#E51A5A",SUN="#FFC72C",INK="#0B2A1E";
 
 const CLASSES=["TERMINAL WIZARD","SHIP GOBLIN","LATE NIGHT ARCHITECT","BUG WHISPERER","PIXEL PIRATE",
   "COMMIT MACHINE","PROMPT SMUGGLER","LATENCY HUNTER","EDGE CASE MONK","DEMO DAY DAREDEVIL",
   "SCHEMA SURFER","REGEX SHAMAN","CACHE COWBOY","DEPLOY DERVISH"];
 const BAG=[["🌊","BEACH VIBES"],["⚡","SIDE PROJECT"],["🎯","SHIP IT"]];
 
+// ── Hash helpers — MUST match framein-goa.html exactly ──────────────
 function hash(s){let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h}
-function autoClass(n){return CLASSES[hash(n||"builder")%CLASSES.length]}
-function builderId(n){return "#HH-GOA-"+String(1+hash(n||"goa")%247).padStart(3,"0")}
+function combinedHash(n,r,s){return hash((n||"builder")+"|"+(r||"")+"|"+(s||""))}
+function autoClass(n,r,s){return CLASSES[combinedHash(n,r,s)%CLASSES.length]}
+function builderId(n,r,s){return "#HH-GOA-"+String(1+combinedHash(n,r,s)%247).padStart(3,"0")}
+// ────────────────────────────────────────────────────────────────────
 
-let cv, ctx;
+let cv,ctx;
 
+// ── Canvas helpers ───────────────────────────────────────────────────
 function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 function txt(s,x,y,font,color,align="center",spacing=0){
   ctx.save();ctx.font=font;ctx.fillStyle=color;ctx.textAlign=spacing?"left":align;ctx.textBaseline="middle";
@@ -107,6 +121,7 @@ function frond(bx,by,ang,len,curve,cA,cB){
   ctx.strokeStyle=cA;ctx.lineWidth=Math.max(1.6,len*.022);ctx.lineCap="round";
   ctx.beginPath();ctx.moveTo(bx,by);ctx.quadraticCurveTo(cxp,cyp,ex,ey);ctx.stroke();
 }
+
 function palm(x,y,s,flip){
   ctx.save();ctx.translate(x,y);ctx.scale(flip?-s:s,s);
   const G1="#1B6B43",G2="#0E3B2A",BARK="#8A5A2B",BARK2="#6B431E";
@@ -129,36 +144,46 @@ function palm(x,y,s,flip){
   [[-26,-10],[-16,-16],[18,-14],[28,-8]].forEach(p=>{ctx.beginPath();ctx.moveTo(0,2);ctx.quadraticCurveTo(p[0]*.6,p[1]*1.4,p[0],p[1]);ctx.stroke()});
   ctx.restore();
 }
-function sunRays(x,y,r,c1,c2){ctx.save();ctx.fillStyle=c2;
+function sunRays(x,y,r,c1,c2){
+  ctx.save();ctx.fillStyle=c2;
   for(let i=0;i<14;i++){const a=i*Math.PI/7;ctx.beginPath();ctx.moveTo(x,y);ctx.arc(x,y,r*1.55,a,a+.13);ctx.fill()}
-  ctx.fillStyle=c1;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.restore()}
-function waves(x,y,w,c,n=3){ctx.save();ctx.strokeStyle=c;ctx.lineWidth=4;ctx.lineCap="round";
-  for(let j=0;j<n;j++){ctx.beginPath();for(let i=0;i<=w;i+=6)ctx.lineTo(x+i,y+j*13+Math.sin(i/13)*4);ctx.stroke()}ctx.restore()}
-function barcode(x,y,w,h,seed){ctx.save();ctx.fillStyle=INK;let p=x,s=seed;
-  while(p<x+w){s=(s*1103515245+12345)>>>0;const bw=2+(s>>16)%7;if((s>>8)%3)ctx.fillRect(p,y,bw,h);p+=bw+3}ctx.restore()}
-function ribbon(cx,y,w,h,label){ctx.save();ctx.fillStyle=PINK;
+  ctx.fillStyle=c1;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.restore();
+}
+function waves(x,y,w,c,n=3){
+  ctx.save();ctx.strokeStyle=c;ctx.lineWidth=4;ctx.lineCap="round";
+  for(let j=0;j<n;j++){ctx.beginPath();for(let i=0;i<=w;i+=6)ctx.lineTo(x+i,y+j*13+Math.sin(i/13)*4);ctx.stroke()}
+  ctx.restore();
+}
+function barcode(x,y,w,h,seed){
+  ctx.save();ctx.fillStyle=INK;let p=x,s=seed;
+  while(p<x+w){s=(s*1103515245+12345)>>>0;const bw=2+(s>>16)%7;if((s>>8)%3)ctx.fillRect(p,y,bw,h);p+=bw+3}
+  ctx.restore();
+}
+function ribbon(cx,y,w,h,label){
+  ctx.save();ctx.fillStyle=PINK;
   ctx.beginPath();ctx.moveTo(cx-w/2,y);ctx.lineTo(cx+w/2,y);ctx.lineTo(cx+w/2-22,y+h/2);ctx.lineTo(cx+w/2,y+h);
   ctx.lineTo(cx-w/2,y+h);ctx.lineTo(cx-w/2+22,y+h/2);ctx.closePath();ctx.fill();
-  txt(label,cx,y+h/2+1,"700 30px 'Space Grotesk'",PAPER,"center",3);ctx.restore()}
+  txt(label,cx,y+h/2+1,"700 30px 'Space Grotesk'",PAPER,"center",3);
+  ctx.restore();
+}
 function makeQRCanvas(text,x,y,size,darkColor,lightColor){
   const qr=qrcode(0,'M');qr.addData(text);qr.make();
   const N=qr.getModuleCount(),cell=size/N;
-  ctx.save();ctx.fillStyle=lightColor||"#ffffff";ctx.fillRect(x-cell*2,y-cell*2,size+cell*4,size+cell*4);
+  ctx.save();
+  ctx.fillStyle=lightColor||"#ffffff";ctx.fillRect(x-cell*2,y-cell*2,size+cell*4,size+cell*4);
   ctx.fillStyle=darkColor||FOREST;
   for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(qr.isDark(r,c))ctx.fillRect(x+c*cell,y+r*cell,cell,cell);
   ctx.restore();
 }
 
-// Draw photo in the portrait slot — uses base64 from Supabase, falls back to initials
+// ── Photo slot: uses stored base64, falls back to initials ───────────
 function drawPhotoSlot(pxx,pyy,pw,ph,name,photoImg){
   ctx.save();rr(pxx,pyy,pw,ph,26);ctx.clip();
   if(photoImg){
-    // fill slot maintaining aspect ratio (same logic as framein-goa drawID)
     const s=Math.max(pw/photoImg.width,ph/photoImg.height);
     const w=photoImg.width*s,h=photoImg.height*s;
     ctx.drawImage(photoImg,pxx+pw/2-w/2,pyy+ph/2-h/2,w,h);
   } else {
-    // fallback: initials on gradient
     const grad=ctx.createLinearGradient(pxx,pyy,pxx+pw,pyy+ph);
     grad.addColorStop(0,LEAF);grad.addColorStop(1,FOREST);
     ctx.fillStyle=grad;ctx.fillRect(pxx,pyy,pw,ph);
@@ -173,40 +198,47 @@ function drawPhotoSlot(pxx,pyy,pw,ph,name,photoImg){
   ctx.restore();
 }
 
+// ── Main card draw — pixel-perfect match to framein-goa drawID ───────
 function drawVerifyID(b, photoImg){
   const W=1040,H=1500;
   cv.width=W;cv.height=H;
 
-  const name=b.name.toUpperCase();
-  const role=(b.role||"BUILDER").toUpperCase();
-  const ship=(b.shipping||"BUILDING THE FUTURE").toUpperCase();
-  const cls=(b.builder_class||autoClass(name)).toUpperCase();
-  const bid=builderId(name);
-  const bidNum=bid.replace("#HH-GOA-","");
+  // Pull data from Supabase record
+  const name   = (b.name||"YOUR NAME").toUpperCase();
+  const role   = (b.role||"BUILDER").toUpperCase();
+  const ship   = (b.shipping||"BUILDING THE FUTURE").toUpperCase();
+  // Use stored builder_class if present, otherwise recompute with full hash
+  const cls    = (b.builder_class||autoClass(name,role,ship)).toUpperCase();
+  // Recompute bid from all three fields — matches generation logic
+  const bid    = builderId(name,role,ship);
+  const bidNum = bid.replace("#HH-GOA-","");
 
   ctx.clearRect(0,0,W,H);
+
+  // ── Outer borders ──
   ctx.save();rr(14,14,W-28,H-28,64);ctx.fillStyle=FOREST;ctx.fill();ctx.restore();
   ctx.save();rr(30,30,W-60,H-60,54);ctx.fillStyle=SUN;ctx.fill();ctx.restore();
   ctx.save();rr(42,42,W-84,H-84,48);ctx.fillStyle=CREAM;ctx.fill();ctx.clip();
 
+  // dot texture
   ctx.fillStyle="rgba(27,107,67,.05)";
   for(let y=60;y<H;y+=46)for(let x=60;x<W;x+=46){ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill()}
 
-  // ---- 1. HEADER ----
+  // ── 1. HEADER ──
   const hb=232;
   ctx.save();ctx.beginPath();ctx.moveTo(42,42);ctx.lineTo(W-42,42);ctx.lineTo(W-42,hb);
   ctx.quadraticCurveTo(W/2,hb+58,42,hb);ctx.closePath();ctx.fillStyle=FOREST;ctx.fill();ctx.restore();
   ctx.save();rr(W/2-92,66,184,26,13);ctx.fillStyle=CREAM;ctx.fill();ctx.restore();
   ctx.save();ctx.font="44px 'Alfa Slab One'";ctx.textBaseline="middle";
-  const a="HACKER ",bb="गोवा ",d="HOUSE";
-  const wa=ctx.measureText(a).width,wb=ctx.measureText(bb).width;
-  let sx=W/2-(wa+wb+ctx.measureText(d).width)/2;ctx.textAlign="left";
-  ctx.fillStyle=CREAM;ctx.fillText(a,sx,152);sx+=wa;
-  ctx.fillStyle=SUN;ctx.fillText(bb,sx,152);sx+=wb;
-  ctx.fillStyle=CREAM;ctx.fillText(d,sx,152);ctx.restore();
+  const ha="HACKER ",hb2="गोवा ",hd="HOUSE";
+  const hwa=ctx.measureText(ha).width,hwb=ctx.measureText(hb2).width,hwd=ctx.measureText(hd).width;
+  let hsx=W/2-(hwa+hwb+hwd)/2;ctx.textAlign="left";
+  ctx.fillStyle=CREAM;ctx.fillText(ha,hsx,152);hsx+=hwa;
+  ctx.fillStyle=SUN;ctx.fillText(hb2,hsx,152);hsx+=hwb;
+  ctx.fillStyle=CREAM;ctx.fillText(hd,hsx,152);ctx.restore();
   txt("GOA, INDIA · 28–31 OCT 2026",W/2,200,"700 20px 'Space Grotesk'",SUN,"center",4);
 
-  // ---- 2. PHOTO (initials) + META ----
+  // ── 2. PHOTO + META ──
   const pw=352,ph=422,pxx=88,pyy=316;
   sunRays(pxx+pw/2,pyy+ph/2,240,"rgba(255,246,223,.95)","rgba(255,199,44,.20)");
   ctx.save();rr(pxx-12,pyy-12,pw+24,ph+24,34);ctx.fillStyle=PAPER;ctx.fill();ctx.strokeStyle=FOREST;ctx.lineWidth=7;ctx.stroke();ctx.restore();
@@ -215,7 +247,8 @@ function drawVerifyID(b, photoImg){
 
   const mx=486,mw=W-42-mx-46;
   const field=(fy,fh,label,value,valColor,size)=>{
-    ctx.save();rr(mx,fy,mw,fh,20);ctx.fillStyle=PAPER;ctx.fill();ctx.strokeStyle="rgba(14,59,42,.35)";ctx.lineWidth=3;ctx.stroke();ctx.restore();
+    ctx.save();rr(mx,fy,mw,fh,20);ctx.fillStyle=PAPER;ctx.fill();
+    ctx.strokeStyle="rgba(14,59,42,.35)";ctx.lineWidth=3;ctx.stroke();ctx.restore();
     txt(label,mx+22,fy+28,"700 15px 'Space Grotesk'",LEAF,"left",2.4);
     const lines=[];const words=value.split(" ");let cur="";
     ctx.font="700 "+size+"px 'Space Grotesk'";
@@ -229,32 +262,34 @@ function drawVerifyID(b, photoImg){
   field(552,100,"BUILDER CLASS",cls,PINK,28);
   field(666,86,"BUILDER ID",bid,INK,26);
 
-  // ---- 3. SHIPPING STRIP ----
+  // ── 3. SHIPPING STRIP ──
   ctx.save();rr(88,772,W-176,104,26);ctx.fillStyle=FOREST;ctx.fill();ctx.strokeStyle=SUN;ctx.lineWidth=5;ctx.stroke();ctx.restore();
   txt("✦ CURRENTLY SHIPPING ✦",W/2,806,"700 16px 'Space Grotesk'",SUN,"center",3);
   fitTxt(ship,W/2,846,W-260,34,"__ 'Bebas Neue'",PAPER,3);
 
-  // ---- 4. BEACH BAG ----
+  // ── 4. BEACH BAG ──
   txt("✦ BEACH BAG ✦",W/2,922,"700 14px 'DM Mono'",LEAF,"center",3);
   BAG.forEach((bg,i)=>{const bx=126+i*272;
     ctx.save();rr(bx,942,238,80,22);ctx.fillStyle="#FFF3CC";ctx.fill();ctx.strokeStyle=PINK;ctx.lineWidth=3;ctx.stroke();ctx.restore();
     txt(bg[0],bx+28,982,"26px serif",FOREST,"left");
-    txt(bg[1],bx+72,982,"700 22px 'Bebas Neue'",FOREST,"left",3)});
+    txt(bg[1],bx+72,982,"700 22px 'Bebas Neue'",FOREST,"left",3);
+  });
 
-  // ---- 5. PERFORATION ----
+  // ── 5. PERFORATION ──
   ctx.save();ctx.strokeStyle="rgba(14,59,42,.45)";ctx.lineWidth=4;ctx.setLineDash([12,14]);
   ctx.beginPath();ctx.moveTo(70,1064);ctx.lineTo(W-70,1064);ctx.stroke();ctx.restore();
-  ctx.save();ctx.fillStyle=SUN;ctx.beginPath();ctx.arc(42,1064,26,0,7);ctx.fill();ctx.beginPath();ctx.arc(W-42,1064,26,0,7);ctx.fill();ctx.restore();
+  ctx.save();ctx.fillStyle=SUN;
+  ctx.beginPath();ctx.arc(42,1064,26,0,7);ctx.fill();
+  ctx.beginPath();ctx.arc(W-42,1064,26,0,7);ctx.fill();ctx.restore();
 
-  // ---- 6. QR STUB ----
+  // ── 6. STUB: QR + barcode ──
   const sy=1074,qrFrame=176,qrPad=10;
   const qrCardX=72,qrCardY=sy+4,qrCardW=qrFrame+36,qrCardH=qrFrame+96;
   ctx.save();rr(qrCardX,qrCardY,qrCardW,qrCardH,20);ctx.fillStyle=PAPER;ctx.fill();ctx.strokeStyle=FOREST;ctx.lineWidth=4;ctx.stroke();ctx.restore();
   const innerX=qrCardX+(qrCardW-qrFrame)/2,innerY=qrCardY+14;
   ctx.save();rr(innerX,innerY,qrFrame,qrFrame,14);ctx.fillStyle="#FFFFFF";ctx.fill();ctx.strokeStyle=SUN;ctx.lineWidth=4;ctx.stroke();ctx.restore();
   const qrURL=VERIFY_URL+"?id="+bidNum;
-  const qrSize=qrFrame-qrPad*2;
-  makeQRCanvas(qrURL,innerX+qrPad,innerY+qrPad,qrSize,FOREST,"#FFFFFF");
+  makeQRCanvas(qrURL,innerX+qrPad,innerY+qrPad,qrFrame-qrPad*2,FOREST,"#FFFFFF");
   txt("SCAN TO VERIFY",qrCardX+qrCardW/2,innerY+qrFrame+20,"700 13px 'DM Mono',monospace",LEAF,"center",2);
   txt(bid,qrCardX+qrCardW/2,innerY+qrFrame+44,"700 19px 'Bebas Neue'",FOREST,"center",3);
 
@@ -266,7 +301,7 @@ function drawVerifyID(b, photoImg){
   barcode(bcX,bcY,bcW,bcH,hash(name)+13);
   txt("BUILD · SHIP · REPEAT",stubX+stubW/2,sy+248,"600 15px 'DM Mono',monospace",LEAF,"center",3);
 
-  // ---- 7. FOOTER ----
+  // ── 7. FOOTER ──
   ctx.save();ctx.fillStyle=LEAF;
   ctx.beginPath();ctx.moveTo(42,H);ctx.lineTo(42,H-138);ctx.quadraticCurveTo(W/2,H-192,W-42,H-138);ctx.lineTo(W-42,H);ctx.closePath();ctx.fill();
   waves(80,H-104,880,"rgba(253,248,236,.45)",2);
@@ -275,31 +310,28 @@ function drawVerifyID(b, photoImg){
   ribbon(W/2,H-118,520,64,"#FRAMEINGOA");
 }
 
-// ─── Supabase fetch ─────────────────────────────────────────────────
+// ── Supabase fetch ────────────────────────────────────────────────────
 async function fetchBuilder(id){
   const res=await fetch(
     `${SUPABASE_URL}/rest/v1/builders?id=eq.${encodeURIComponent(id)}&select=*`,
     {headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`}}
   );
-  if(!res.ok)throw new Error("fetch failed");
+  if(!res.ok) throw new Error("fetch failed");
   const rows=await res.json();
   return rows[0]||null;
 }
 
-function escHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-
 function renderError(msg){
   document.getElementById("root").innerHTML=`
-    <div class="state">
-      <div class="icon">🤔</div>
-      <h2>Builder Not Found</h2>
-      <p>${msg}</p>
-      <br/>
-      <a class="cta" href="${SITE_URL}" style="display:inline-block;padding:14px 32px;margin-top:8px">🌴 Make your own</a>
+    <div style="text-align:center;font-family:'DM Mono',monospace;letter-spacing:.12em;padding-top:80px">
+      <div style="font-size:48px;margin-bottom:16px">🤔</div>
+      <h2 style="font-family:'Alfa Slab One',serif;font-size:28px;color:var(--sun);margin:0 0 8px">Builder Not Found</h2>
+      <p style="font-size:13px;opacity:.7;margin:0 0 24px">${msg}</p>
+      <a href="${SITE_URL}" class="cta" style="display:inline-block;margin-top:16px;padding:14px 32px;width:auto">🌴 Make your own</a>
     </div>`;
 }
 
-// ─── Main ────────────────────────────────────────────────────────────
+// ── Main ──────────────────────────────────────────────────────────────
 (async()=>{
   const params=new URLSearchParams(location.search);
   let id=params.get("id");
@@ -313,19 +345,20 @@ function renderError(msg){
     if(!builder){renderError("This ID hasn't been registered yet.");return;}
   }catch(e){renderError("Couldn't reach the server. Try again in a moment.");return;}
 
-  // builder found — swap root with canvas + CTA
+  // Swap loading state with canvas — NO overlay text, just the clean card
   const root=document.getElementById("root");
   root.innerHTML=`
-    <div class="wrap">
+    <div style="width:100%;display:flex;flex-direction:column;align-items:stretch;gap:20px">
       <canvas id="vcv" width="1040" height="1500"></canvas>
-      <a class="cta" href="${SITE_URL}">🌴 Make it yours</a>
-      <p class="hint">#FRAMEINGOA · HACKER HOUSE GOA 2026</p>
+      <a href="${SITE_URL}" class="cta">🌴 Make it yours</a>
+      <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;opacity:.55;text-align:center;margin:0">
+        #FRAMEINGOA · HACKER HOUSE GOA 2026
+      </p>
     </div>`;
 
   cv=document.getElementById("vcv");
   ctx=cv.getContext("2d");
 
-  // load photo from base64 if present
   async function loadPhoto(dataURL){
     if(!dataURL) return null;
     return new Promise(resolve=>{
@@ -336,10 +369,9 @@ function renderError(msg){
     });
   }
 
-  // wait for fonts + photo then draw
   document.fonts.ready.then(async()=>{
-    const photoImg = await loadPhoto(builder.photo||null);
-    drawVerifyID(builder, photoImg);
+    const photoImg=await loadPhoto(builder.photo||null);
+    drawVerifyID(builder,photoImg);
   });
 })();
 </script>
