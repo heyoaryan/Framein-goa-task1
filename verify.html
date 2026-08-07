@@ -8,323 +8,339 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bebas+Neue&family=DM+Mono:wght@500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
-:root{
-  --cream:#F7EFD8; --paper:#FDF8EC; --forest:#0E3B2A; --leaf:#1B6B43;
-  --pink:#E51A5A; --sun:#FFC72C; --ink:#0B2A1E;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;min-height:100vh}
+:root{--cream:#F7EFD8;--paper:#FDF8EC;--forest:#0E3B2A;--leaf:#1B6B43;--pink:#E51A5A;--sun:#FFC72C;--ink:#0B2A1E}
+*{box-sizing:border-box}html,body{margin:0;padding:0;min-height:100vh}
 body{
   background:var(--forest);
-  background-image:
-    radial-gradient(120% 60% at 50% -10%, #17553B 0%, rgba(23,85,59,0) 60%),
-    repeating-linear-gradient(135deg, rgba(255,255,255,.028) 0 14px, rgba(0,0,0,0) 14px 28px);
-  color:var(--cream);
-  font-family:"Space Grotesk",system-ui,sans-serif;
+  background-image:radial-gradient(120% 60% at 50% -10%,#17553B 0%,rgba(23,85,59,0) 60%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.028) 0 14px,rgba(0,0,0,0) 14px 28px);
+  color:var(--cream);font-family:"Space Grotesk",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;
-  display:flex; flex-direction:column; align-items:center;
-  justify-content:center; min-height:100vh; padding:32px 16px 64px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:32px 16px 64px;
 }
-
-/* ---- loading / error states ---- */
 .state{text-align:center;font-family:"DM Mono",monospace;letter-spacing:.12em}
 .state .icon{font-size:48px;margin-bottom:16px}
 .state h2{font-family:"Alfa Slab One",serif;font-size:28px;color:var(--sun);margin:0 0 8px}
 .state p{font-size:13px;opacity:.7;margin:0}
-
-/* ---- card ---- */
-.card-wrap{
-  width:100%; max-width:420px;
-  display:flex; flex-direction:column; align-items:center; gap:24px;
-}
-
-.card{
-  width:100%; background:var(--paper); color:var(--ink);
-  border-radius:28px; overflow:hidden;
-  box-shadow:0 0 0 4px var(--sun), 0 16px 0 rgba(0,0,0,.35);
-  position:relative;
-}
-
-/* card header band */
-.card-header{
-  background:var(--forest); padding:20px 24px 16px;
-  text-align:center; position:relative;
-}
-.card-header .lanyard{
-  width:120px; height:18px; background:var(--cream);
-  border-radius:6px; margin:0 auto 14px;
-}
-.card-header h1{
-  font-family:"Alfa Slab One",serif;
-  font-size:22px; line-height:1; margin:0 0 4px;
-  color:var(--cream);
-}
-.card-header h1 em{font-style:normal; color:var(--sun)}
-.card-header .sub{
-  font-family:"DM Mono",monospace;
-  font-size:10px; letter-spacing:.22em;
-  color:var(--sun); opacity:.9; text-transform:uppercase;
-}
-
-/* avatar */
-.avatar-ring{
-  width:96px; height:96px;
-  border-radius:50%;
-  background:var(--leaf);
-  border:5px solid var(--sun);
-  display:flex; align-items:center; justify-content:center;
-  margin:0 auto; position:relative; top:-18px; margin-bottom:-10px;
-  overflow:hidden;
-  box-shadow:0 6px 0 rgba(0,0,0,.25);
-}
-.avatar-ring .initials{
-  font-family:"Bebas Neue",sans-serif;
-  font-size:36px; color:var(--cream); letter-spacing:.06em;
-  user-select:none;
-}
-
-/* body */
-.card-body{padding:0 24px 24px; text-align:center}
-.builder-name{
-  font-family:"Bebas Neue",sans-serif;
-  font-size:38px; letter-spacing:.04em;
-  color:var(--ink); line-height:1; margin:0 0 6px;
-  word-break:break-word;
-}
-.builder-role{
-  font-family:"Space Grotesk",sans-serif;
-  font-weight:700; font-size:13px; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--pink); margin:0 0 18px;
-}
-
-/* field rows */
-.fields{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
-.field{
-  background:#FFF8E8; border:2px solid rgba(14,59,42,.12);
-  border-radius:14px; padding:10px 16px; text-align:left;
-}
-.field-label{
-  font-family:"DM Mono",monospace;
-  font-size:9px; letter-spacing:.22em; text-transform:uppercase;
-  color:var(--leaf); margin-bottom:4px;
-}
-.field-value{
-  font-family:"Space Grotesk",sans-serif;
-  font-weight:700; font-size:14px; color:var(--ink);
-  word-break:break-word;
-}
-
-/* shipping strip */
-.ship-strip{
-  background:var(--forest);
-  border-radius:12px; padding:12px 16px;
-  text-align:center; margin-bottom:18px;
-}
-.ship-strip .ship-label{
-  font-family:"DM Mono",monospace;
-  font-size:9px; letter-spacing:.22em; color:var(--sun); margin-bottom:4px;
-}
-.ship-strip .ship-value{
-  font-family:"Bebas Neue",sans-serif;
-  font-size:22px; letter-spacing:.06em; color:var(--cream);
-  word-break:break-word;
-}
-
-/* badge row */
-.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
-.badge{
-  background:var(--sun); color:var(--ink);
-  font-family:"Space Grotesk",sans-serif;
-  font-weight:700; font-size:10px; letter-spacing:.1em;
-  text-transform:uppercase; padding:5px 12px;
-  border-radius:999px;
-}
-.badge.green{background:var(--leaf);color:var(--cream)}
-
-/* builder id footer */
-.bid-row{
-  display:flex; align-items:center; justify-content:space-between;
-  border-top:2px dashed rgba(14,59,42,.2); padding-top:14px;
-}
-.bid-label{
-  font-family:"DM Mono",monospace;
-  font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--leaf);
-}
-.bid-value{
-  font-family:"Bebas Neue",sans-serif;
-  font-size:22px; color:var(--ink); letter-spacing:.08em;
-}
-.verified-dot{
-  display:flex; align-items:center; gap:6px;
-  font-family:"DM Mono",monospace;
-  font-size:10px; color:var(--leaf); letter-spacing:.1em;
-}
-.verified-dot::before{
-  content:"";
-  width:8px; height:8px; background:#22C55E;
-  border-radius:50%; display:block;
-  box-shadow:0 0 6px #22C55E;
-}
-
-/* CTA button */
+.wrap{width:100%;max-width:560px;display:flex;flex-direction:column;align-items:center;gap:24px}
+canvas{width:100%;height:auto;border-radius:20px;display:block;box-shadow:0 14px 0 rgba(0,0,0,.35)}
 .cta{
-  width:100%; padding:18px 24px;
-  background:var(--pink); color:#fff;
-  border:0; border-radius:999px;
-  font-family:"Space Grotesk",sans-serif;
-  font-weight:700; font-size:16px; letter-spacing:.06em;
-  text-transform:uppercase; cursor:pointer;
-  box-shadow:0 6px 0 rgba(0,0,0,.3);
-  text-decoration:none; display:block; text-align:center;
-  transition:.15s;
+  width:100%;padding:18px 24px;background:var(--pink);color:#fff;
+  border:0;border-radius:999px;font-family:"Space Grotesk",sans-serif;
+  font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.3);text-decoration:none;
+  display:block;text-align:center;transition:.15s;
 }
 .cta:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
-
-.hint{
-  font-family:"DM Mono",monospace;
-  font-size:11px; letter-spacing:.12em;
-  opacity:.6; text-align:center;
-}
+.hint{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.12em;opacity:.6;text-align:center}
 </style>
 </head>
 <body>
-
 <div id="root">
-  <!-- loading -->
   <div class="state" id="stateLoading">
     <div class="icon">⏳</div>
     <h2>Verifying…</h2>
     <p>Fetching builder data</p>
   </div>
 </div>
-
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────────────
-const SUPABASE_URL = "https://fxxnnvnplwnalplsxivf.supabase.co";
+// ─── CONFIG ────────────────────────────────────────────────────────
+const SUPABASE_URL      = "https://fxxnnvnplwnalplsxivf.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4eG5udm5wbHduYWxwbHN4aXZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTk2MDIsImV4cCI6MjEwMTY5NTYwMn0.IGLXb0UB08Tupx9nZcNPzmFe-u09Y0aW5-RgtuaxQ8k";
-const SITE_URL = "https://framein-goa-task1.netlify.app";
-// ─────────────────────────────────────────────────────────────────────
+const SITE_URL          = "https://framein-goa-task1.netlify.app";
+const VERIFY_URL        = SITE_URL + "/verify.html";
+// ───────────────────────────────────────────────────────────────────
 
+const CREAM="#F7EFD8",PAPER="#FDF8EC",FOREST="#0E3B2A",LEAF="#1B6B43",
+      PINK="#E51A5A",SUN="#FFC72C",INK="#0B2A1E",SAND="#F2E2BC";
+
+const CLASSES=["TERMINAL WIZARD","SHIP GOBLIN","LATE NIGHT ARCHITECT","BUG WHISPERER","PIXEL PIRATE",
+  "COMMIT MACHINE","PROMPT SMUGGLER","LATENCY HUNTER","EDGE CASE MONK","DEMO DAY DAREDEVIL",
+  "SCHEMA SURFER","REGEX SHAMAN","CACHE COWBOY","DEPLOY DERVISH"];
+const BAG=[["🌊","BEACH VIBES"],["⚡","SIDE PROJECT"],["🎯","SHIP IT"]];
+
+function hash(s){let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h}
+function autoClass(n){return CLASSES[hash(n||"builder")%CLASSES.length]}
+function builderId(n){return "#HH-GOA-"+String(1+hash(n||"goa")%247).padStart(3,"0")}
+
+let cv, ctx;
+
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function txt(s,x,y,font,color,align="center",spacing=0){
+  ctx.save();ctx.font=font;ctx.fillStyle=color;ctx.textAlign=spacing?"left":align;ctx.textBaseline="middle";
+  if(!spacing){ctx.fillText(s,x,y);ctx.restore();return}
+  let w=0;for(const ch of s)w+=ctx.measureText(ch).width+spacing;w-=spacing;
+  let cx2=align==="center"?x-w/2:align==="right"?x-w:x;
+  for(const ch of s){ctx.fillText(ch,cx2,y);cx2+=ctx.measureText(ch).width+spacing}
+  ctx.restore();
+}
+function fitTxt(s,x,y,maxW,base,font,color,spacing=0){
+  let size=base;
+  for(;;){const f=font.replace("__",size+"px");ctx.font=f;
+    let w=0;for(const ch of s)w+=ctx.measureText(ch).width+spacing;
+    if(w-spacing<=maxW||size<14){txt(s,x,y,f,color,"center",spacing);return}
+    size-=2;}
+}
+function frond(bx,by,ang,len,curve,cA,cB){
+  const ex=bx+Math.cos(ang)*len,ey=by+Math.sin(ang)*len;
+  const nx=Math.cos(ang+Math.PI/2),ny=Math.sin(ang+Math.PI/2);
+  const cxp=bx+Math.cos(ang)*len*.55+nx*curve,cyp=by+Math.sin(ang)*len*.55+ny*curve;
+  const pt=t=>{const u=1-t;return[u*u*bx+2*u*t*cxp+t*t*ex,u*u*by+2*u*t*cyp+t*t*ey]};
+  const N=17;
+  for(let i=1;i<=N;i++){
+    const t=i/N,[px,py]=pt(t),[qx,qy]=pt(Math.max(0,t-1/N));
+    let dx=px-qx,dy=py-qy;const d=Math.hypot(dx,dy)||1;dx/=d;dy/=d;
+    const px2=-dy,py2=dx;
+    const prof=Math.sin(Math.pow(t,.72)*Math.PI)*(1-t*.28);
+    const L=len*.30*prof,sweep=len*.13*prof;
+    if(L<1)continue;
+    for(const side of[1,-1]){
+      ctx.fillStyle=(i%2?cA:cB);ctx.beginPath();ctx.moveTo(px,py);
+      ctx.quadraticCurveTo(px+px2*side*L*.55+dx*sweep*.3,py+py2*side*L*.55+dy*sweep*.3,px+px2*side*L+dx*sweep,py+py2*side*L+dy*sweep);
+      ctx.quadraticCurveTo(px+px2*side*L*.42+dx*sweep*1.05,py+py2*side*L*.42+dy*sweep*1.05,px+dx*len*.055,py+dy*len*.055);
+      ctx.closePath();ctx.fill();
+    }
+  }
+  ctx.strokeStyle=cA;ctx.lineWidth=Math.max(1.6,len*.022);ctx.lineCap="round";
+  ctx.beginPath();ctx.moveTo(bx,by);ctx.quadraticCurveTo(cxp,cyp,ex,ey);ctx.stroke();
+}
+function palm(x,y,s,flip){
+  ctx.save();ctx.translate(x,y);ctx.scale(flip?-s:s,s);
+  const G1="#1B6B43",G2="#0E3B2A",BARK="#8A5A2B",BARK2="#6B431E";
+  const H=132,LEAN=22,tip=[LEAN,-H],baseW=13,tipW=5,cxp=-14,cyp=-H*.55;
+  const at=t=>{const u=1-t;return[u*u*0+2*u*t*cxp+t*t*tip[0],u*u*0+2*u*t*cyp+t*t*tip[1]]};
+  ctx.beginPath();
+  for(let i=0;i<=20;i++){const t=i/20,[px,py]=at(t);const w=baseW+(tipW-baseW)*t;if(i===0)ctx.moveTo(px-w,py);else ctx.lineTo(px-w,py)}
+  for(let i=20;i>=0;i--){const t=i/20,[px,py]=at(t);const w=baseW+(tipW-baseW)*t;ctx.lineTo(px+w,py)}
+  ctx.closePath();ctx.fillStyle=BARK;ctx.fill();
+  ctx.save();ctx.clip();ctx.strokeStyle=BARK2;ctx.lineWidth=2.4;
+  for(let i=1;i<19;i++){const t=i/20,[px,py]=at(t);ctx.beginPath();ctx.moveTo(px-16,py+3);ctx.quadraticCurveTo(px,py-3,px+16,py+3);ctx.stroke()}
+  ctx.restore();
+  const set=[[-1.95,74,26],[-1.40,84,30],[-0.85,80,22],[-2.55,80,-26],[-3.05,74,-30],[-0.30,64,16],[-3.55,62,-18]];
+  set.forEach(f=>frond(tip[0],tip[1]+2,f[0],f[1],f[2],G1,G2));
+  ctx.fillStyle="#5E3B18";
+  [[-9,-H+9],[9,-H+11],[0,-H+18]].forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],6.2,0,7);ctx.fill()});
+  ctx.fillStyle="rgba(255,255,255,.22)";
+  [[-11,-H+7],[7,-H+9]].forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],2.1,0,7);ctx.fill()});
+  ctx.strokeStyle=G1;ctx.lineWidth=4;ctx.lineCap="round";
+  [[-26,-10],[-16,-16],[18,-14],[28,-8]].forEach(p=>{ctx.beginPath();ctx.moveTo(0,2);ctx.quadraticCurveTo(p[0]*.6,p[1]*1.4,p[0],p[1]);ctx.stroke()});
+  ctx.restore();
+}
+function sunRays(x,y,r,c1,c2){ctx.save();ctx.fillStyle=c2;
+  for(let i=0;i<14;i++){const a=i*Math.PI/7;ctx.beginPath();ctx.moveTo(x,y);ctx.arc(x,y,r*1.55,a,a+.13);ctx.fill()}
+  ctx.fillStyle=c1;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.restore()}
+function waves(x,y,w,c,n=3){ctx.save();ctx.strokeStyle=c;ctx.lineWidth=4;ctx.lineCap="round";
+  for(let j=0;j<n;j++){ctx.beginPath();for(let i=0;i<=w;i+=6)ctx.lineTo(x+i,y+j*13+Math.sin(i/13)*4);ctx.stroke()}ctx.restore()}
+function barcode(x,y,w,h,seed){ctx.save();ctx.fillStyle=INK;let p=x,s=seed;
+  while(p<x+w){s=(s*1103515245+12345)>>>0;const bw=2+(s>>16)%7;if((s>>8)%3)ctx.fillRect(p,y,bw,h);p+=bw+3}ctx.restore()}
+function ribbon(cx,y,w,h,label){ctx.save();ctx.fillStyle=PINK;
+  ctx.beginPath();ctx.moveTo(cx-w/2,y);ctx.lineTo(cx+w/2,y);ctx.lineTo(cx+w/2-22,y+h/2);ctx.lineTo(cx+w/2,y+h);
+  ctx.lineTo(cx-w/2,y+h);ctx.lineTo(cx-w/2+22,y+h/2);ctx.closePath();ctx.fill();
+  txt(label,cx,y+h/2+1,"700 30px 'Space Grotesk'",PAPER,"center",3);ctx.restore()}
+function makeQRCanvas(text,x,y,size,darkColor,lightColor){
+  const qr=qrcode(0,'M');qr.addData(text);qr.make();
+  const N=qr.getModuleCount(),cell=size/N;
+  ctx.save();ctx.fillStyle=lightColor||"#ffffff";ctx.fillRect(x-cell*2,y-cell*2,size+cell*4,size+cell*4);
+  ctx.fillStyle=darkColor||FOREST;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(qr.isDark(r,c))ctx.fillRect(x+c*cell,y+r*cell,cell,cell);
+  ctx.restore();
+}
+
+// Draw photo in the portrait slot — uses base64 from Supabase, falls back to initials
+function drawPhotoSlot(pxx,pyy,pw,ph,name,photoImg){
+  ctx.save();rr(pxx,pyy,pw,ph,26);ctx.clip();
+  if(photoImg){
+    // fill slot maintaining aspect ratio (same logic as framein-goa drawID)
+    const s=Math.max(pw/photoImg.width,ph/photoImg.height);
+    const w=photoImg.width*s,h=photoImg.height*s;
+    ctx.drawImage(photoImg,pxx+pw/2-w/2,pyy+ph/2-h/2,w,h);
+  } else {
+    // fallback: initials on gradient
+    const grad=ctx.createLinearGradient(pxx,pyy,pxx+pw,pyy+ph);
+    grad.addColorStop(0,LEAF);grad.addColorStop(1,FOREST);
+    ctx.fillStyle=grad;ctx.fillRect(pxx,pyy,pw,ph);
+    const parts=name.trim().split(/\s+/);
+    const ini=(parts[0]?.[0]||"")+(parts[1]?.[0]||"");
+    const fontSize=Math.round(pw*0.38);
+    ctx.font=`700 ${fontSize}px 'Bebas Neue'`;
+    ctx.fillStyle="rgba(247,239,216,.9)";
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText(ini.toUpperCase(),pxx+pw/2,pyy+ph/2);
+  }
+  ctx.restore();
+}
+
+function drawVerifyID(b, photoImg){
+  const W=1040,H=1500;
+  cv.width=W;cv.height=H;
+
+  const name=b.name.toUpperCase();
+  const role=(b.role||"BUILDER").toUpperCase();
+  const ship=(b.shipping||"BUILDING THE FUTURE").toUpperCase();
+  const cls=(b.builder_class||autoClass(name)).toUpperCase();
+  const bid=builderId(name);
+  const bidNum=bid.replace("#HH-GOA-","");
+
+  ctx.clearRect(0,0,W,H);
+  ctx.save();rr(14,14,W-28,H-28,64);ctx.fillStyle=FOREST;ctx.fill();ctx.restore();
+  ctx.save();rr(30,30,W-60,H-60,54);ctx.fillStyle=SUN;ctx.fill();ctx.restore();
+  ctx.save();rr(42,42,W-84,H-84,48);ctx.fillStyle=CREAM;ctx.fill();ctx.clip();
+
+  ctx.fillStyle="rgba(27,107,67,.05)";
+  for(let y=60;y<H;y+=46)for(let x=60;x<W;x+=46){ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill()}
+
+  // ---- 1. HEADER ----
+  const hb=232;
+  ctx.save();ctx.beginPath();ctx.moveTo(42,42);ctx.lineTo(W-42,42);ctx.lineTo(W-42,hb);
+  ctx.quadraticCurveTo(W/2,hb+58,42,hb);ctx.closePath();ctx.fillStyle=FOREST;ctx.fill();ctx.restore();
+  ctx.save();rr(W/2-92,66,184,26,13);ctx.fillStyle=CREAM;ctx.fill();ctx.restore();
+  ctx.save();ctx.font="44px 'Alfa Slab One'";ctx.textBaseline="middle";
+  const a="HACKER ",bb="गोवा ",d="HOUSE";
+  const wa=ctx.measureText(a).width,wb=ctx.measureText(bb).width;
+  let sx=W/2-(wa+wb+ctx.measureText(d).width)/2;ctx.textAlign="left";
+  ctx.fillStyle=CREAM;ctx.fillText(a,sx,152);sx+=wa;
+  ctx.fillStyle=SUN;ctx.fillText(bb,sx,152);sx+=wb;
+  ctx.fillStyle=CREAM;ctx.fillText(d,sx,152);ctx.restore();
+  txt("GOA, INDIA · 28–31 OCT 2026",W/2,200,"700 20px 'Space Grotesk'",SUN,"center",4);
+
+  // ---- 2. PHOTO (initials) + META ----
+  const pw=352,ph=422,pxx=88,pyy=316;
+  sunRays(pxx+pw/2,pyy+ph/2,240,"rgba(255,246,223,.95)","rgba(255,199,44,.20)");
+  ctx.save();rr(pxx-12,pyy-12,pw+24,ph+24,34);ctx.fillStyle=PAPER;ctx.fill();ctx.strokeStyle=FOREST;ctx.lineWidth=7;ctx.stroke();ctx.restore();
+  drawPhotoSlot(pxx,pyy,pw,ph,name,photoImg);
+  ctx.save();rr(pxx,pyy,pw,ph,26);ctx.strokeStyle=SUN;ctx.lineWidth=6;ctx.stroke();ctx.restore();
+
+  const mx=486,mw=W-42-mx-46;
+  const field=(fy,fh,label,value,valColor,size)=>{
+    ctx.save();rr(mx,fy,mw,fh,20);ctx.fillStyle=PAPER;ctx.fill();ctx.strokeStyle="rgba(14,59,42,.35)";ctx.lineWidth=3;ctx.stroke();ctx.restore();
+    txt(label,mx+22,fy+28,"700 15px 'Space Grotesk'",LEAF,"left",2.4);
+    const lines=[];const words=value.split(" ");let cur="";
+    ctx.font="700 "+size+"px 'Space Grotesk'";
+    words.forEach(w=>{const t=cur?cur+" "+w:w;if(ctx.measureText(t).width>mw-44&&cur){lines.push(cur);cur=w}else cur=t});
+    lines.push(cur);
+    const startY=fy+28+(fh-40-lines.length*(size+6))/2+size/2+10;
+    lines.forEach((l,i)=>fitTxt(l,mx+mw/2,startY+i*(size+6),mw-44,size,"700 __ 'Space Grotesk'",valColor,1));
+  };
+  field(304,120,"NAME",name,FOREST,40);
+  field(438,100,"STACK / ROLE",role,PINK,28);
+  field(552,100,"BUILDER CLASS",cls,PINK,28);
+  field(666,86,"BUILDER ID",bid,INK,26);
+
+  // ---- 3. SHIPPING STRIP ----
+  ctx.save();rr(88,772,W-176,104,26);ctx.fillStyle=FOREST;ctx.fill();ctx.strokeStyle=SUN;ctx.lineWidth=5;ctx.stroke();ctx.restore();
+  txt("✦ CURRENTLY SHIPPING ✦",W/2,806,"700 16px 'Space Grotesk'",SUN,"center",3);
+  fitTxt(ship,W/2,846,W-260,34,"__ 'Bebas Neue'",PAPER,3);
+
+  // ---- 4. BEACH BAG ----
+  txt("✦ BEACH BAG ✦",W/2,922,"700 14px 'DM Mono'",LEAF,"center",3);
+  BAG.forEach((bg,i)=>{const bx=126+i*272;
+    ctx.save();rr(bx,942,238,80,22);ctx.fillStyle="#FFF3CC";ctx.fill();ctx.strokeStyle=PINK;ctx.lineWidth=3;ctx.stroke();ctx.restore();
+    txt(bg[0],bx+28,982,"26px serif",FOREST,"left");
+    txt(bg[1],bx+72,982,"700 22px 'Bebas Neue'",FOREST,"left",3)});
+
+  // ---- 5. PERFORATION ----
+  ctx.save();ctx.strokeStyle="rgba(14,59,42,.45)";ctx.lineWidth=4;ctx.setLineDash([12,14]);
+  ctx.beginPath();ctx.moveTo(70,1064);ctx.lineTo(W-70,1064);ctx.stroke();ctx.restore();
+  ctx.save();ctx.fillStyle=SUN;ctx.beginPath();ctx.arc(42,1064,26,0,7);ctx.fill();ctx.beginPath();ctx.arc(W-42,1064,26,0,7);ctx.fill();ctx.restore();
+
+  // ---- 6. QR STUB ----
+  const sy=1074,qrFrame=176,qrPad=10;
+  const qrCardX=72,qrCardY=sy+4,qrCardW=qrFrame+36,qrCardH=qrFrame+96;
+  ctx.save();rr(qrCardX,qrCardY,qrCardW,qrCardH,20);ctx.fillStyle=PAPER;ctx.fill();ctx.strokeStyle=FOREST;ctx.lineWidth=4;ctx.stroke();ctx.restore();
+  const innerX=qrCardX+(qrCardW-qrFrame)/2,innerY=qrCardY+14;
+  ctx.save();rr(innerX,innerY,qrFrame,qrFrame,14);ctx.fillStyle="#FFFFFF";ctx.fill();ctx.strokeStyle=SUN;ctx.lineWidth=4;ctx.stroke();ctx.restore();
+  const qrURL=VERIFY_URL+"?id="+bidNum;
+  const qrSize=qrFrame-qrPad*2;
+  makeQRCanvas(qrURL,innerX+qrPad,innerY+qrPad,qrSize,FOREST,"#FFFFFF");
+  txt("SCAN TO VERIFY",qrCardX+qrCardW/2,innerY+qrFrame+20,"700 13px 'DM Mono',monospace",LEAF,"center",2);
+  txt(bid,qrCardX+qrCardW/2,innerY+qrFrame+44,"700 19px 'Bebas Neue'",FOREST,"center",3);
+
+  const stubX=qrCardX+qrCardW+18,stubW=W-stubX-90;
+  ctx.save();rr(stubX,sy,stubW,150,24);ctx.fillStyle=PAPER;ctx.fill();ctx.strokeStyle=FOREST;ctx.lineWidth=4;ctx.stroke();ctx.restore();
+  txt("ADMIT ONE BUILDER",stubX+stubW/2,sy+42,"700 17px 'Space Grotesk'",LEAF,"center",3);
+  fitTxt(name,stubX+stubW/2,sy+92,stubW-40,40,"__ 'Bebas Neue'",FOREST,3);
+  const bcX=stubX+20,bcY=sy+160,bcW=stubW-40,bcH=52;
+  barcode(bcX,bcY,bcW,bcH,hash(name)+13);
+  txt("BUILD · SHIP · REPEAT",stubX+stubW/2,sy+248,"600 15px 'DM Mono',monospace",LEAF,"center",3);
+
+  // ---- 7. FOOTER ----
+  ctx.save();ctx.fillStyle=LEAF;
+  ctx.beginPath();ctx.moveTo(42,H);ctx.lineTo(42,H-138);ctx.quadraticCurveTo(W/2,H-192,W-42,H-138);ctx.lineTo(W-42,H);ctx.closePath();ctx.fill();
+  waves(80,H-104,880,"rgba(253,248,236,.45)",2);
+  palm(62,H-14,.62,false);palm(W-62,H-14,.62,true);
+  ctx.restore();
+  ribbon(W/2,H-118,520,64,"#FRAMEINGOA");
+}
+
+// ─── Supabase fetch ─────────────────────────────────────────────────
 async function fetchBuilder(id){
-  const res = await fetch(
+  const res=await fetch(
     `${SUPABASE_URL}/rest/v1/builders?id=eq.${encodeURIComponent(id)}&select=*`,
-    { headers:{
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-    }}
+    {headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`}}
   );
-  if(!res.ok) throw new Error("fetch failed");
-  const rows = await res.json();
-  return rows[0] || null;
+  if(!res.ok)throw new Error("fetch failed");
+  const rows=await res.json();
+  return rows[0]||null;
 }
 
-function initials(name){
-  return name.split(" ").slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?";
-}
-
-function renderCard(b){
-  const root = document.getElementById("root");
-  root.innerHTML = `
-    <div class="card-wrap">
-      <div class="card">
-        <div class="card-header">
-          <div class="lanyard"></div>
-          <h1>HACKER <em>गोवा</em> HOUSE</h1>
-          <div class="sub">GOA, INDIA · 28–31 OCT 2026</div>
-        </div>
-
-        <div class="avatar-ring">
-          <span class="initials">${initials(b.name)}</span>
-        </div>
-
-        <div class="card-body">
-          <div class="builder-name">${escHtml(b.name)}</div>
-          <div class="builder-role">${escHtml(b.role||"Builder")}</div>
-
-          <div class="fields">
-            <div class="field">
-              <div class="field-label">Builder Class</div>
-              <div class="field-value">${escHtml(b.builder_class||"—")}</div>
-            </div>
-          </div>
-
-          <div class="ship-strip">
-            <div class="ship-label">✦ Currently Shipping ✦</div>
-            <div class="ship-value">${escHtml(b.shipping||"Building the future")}</div>
-          </div>
-
-          <div class="badges">
-            <span class="badge">HH Goa 2026</span>
-            <span class="badge green">Build · Ship · Repeat</span>
-          </div>
-
-          <div class="bid-row">
-            <div>
-              <div class="bid-label">Builder ID</div>
-              <div class="bid-value">#HH-GOA-${escHtml(b.id)}</div>
-            </div>
-            <div class="verified-dot">VERIFIED</div>
-          </div>
-        </div>
-      </div>
-
-      <a class="cta" href="${SITE_URL}">🌴 Make it yours</a>
-
-      <p class="hint">#FRAMEINGOA · HACKER HOUSE GOA 2026</p>
-    </div>
-  `;
-}
+function escHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 
 function renderError(msg){
-  document.getElementById("root").innerHTML = `
+  document.getElementById("root").innerHTML=`
     <div class="state">
       <div class="icon">🤔</div>
       <h2>Builder Not Found</h2>
       <p>${msg}</p>
       <br/>
-      <a class="cta" href="${SITE_URL}" style="display:inline-block;padding:14px 32px;margin-top:8px">
-        🌴 Make your own
-      </a>
-    </div>
-  `;
-}
-
-function escHtml(s){
-  return String(s)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;");
+      <a class="cta" href="${SITE_URL}" style="display:inline-block;padding:14px 32px;margin-top:8px">🌴 Make your own</a>
+    </div>`;
 }
 
 // ─── Main ────────────────────────────────────────────────────────────
 (async()=>{
-  // URL pattern: /verify.html?id=001  OR  /v/001
-  const params = new URLSearchParams(location.search);
-  let id = params.get("id");
+  const params=new URLSearchParams(location.search);
+  let id=params.get("id");
+  if(!id){const m=location.pathname.match(/\/v\/(\d+)$/);if(m)id=m[1];}
+  if(!id){renderError("No builder ID in the URL.");return;}
+  id=String(parseInt(id,10)||0).padStart(3,"0");
 
-  // also handle path-based: /v/001
-  if(!id){
-    const m = location.pathname.match(/\/v\/(\d+)$/);
-    if(m) id = m[1];
-  }
-
-  if(!id){
-    renderError("No builder ID in the URL.");
-    return;
-  }
-
-  // zero-pad to 3 digits
-  id = String(parseInt(id,10)||0).padStart(3,"0");
-
+  let builder;
   try{
-    const builder = await fetchBuilder(id);
-    if(!builder){ renderError("This ID hasn't been registered yet."); return; }
-    renderCard(builder);
-  } catch(e){
-    renderError("Couldn't reach the server. Try again in a moment.");
+    builder=await fetchBuilder(id);
+    if(!builder){renderError("This ID hasn't been registered yet.");return;}
+  }catch(e){renderError("Couldn't reach the server. Try again in a moment.");return;}
+
+  // builder found — swap root with canvas + CTA
+  const root=document.getElementById("root");
+  root.innerHTML=`
+    <div class="wrap">
+      <canvas id="vcv" width="1040" height="1500"></canvas>
+      <a class="cta" href="${SITE_URL}">🌴 Make it yours</a>
+      <p class="hint">#FRAMEINGOA · HACKER HOUSE GOA 2026</p>
+    </div>`;
+
+  cv=document.getElementById("vcv");
+  ctx=cv.getContext("2d");
+
+  // load photo from base64 if present
+  async function loadPhoto(dataURL){
+    if(!dataURL) return null;
+    return new Promise(resolve=>{
+      const img=new Image();
+      img.onload=()=>resolve(img);
+      img.onerror=()=>resolve(null);
+      img.src=dataURL;
+    });
   }
+
+  // wait for fonts + photo then draw
+  document.fonts.ready.then(async()=>{
+    const photoImg = await loadPhoto(builder.photo||null);
+    drawVerifyID(builder, photoImg);
+  });
 })();
 </script>
 </body>
