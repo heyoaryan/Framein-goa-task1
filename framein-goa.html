@@ -162,6 +162,11 @@ const VERIFY_URL       = SITE_URL + "/verify.html"; // QR scans go here
 const CREAM="#F7EFD8", PAPER="#FDF8EC", FOREST="#0E3B2A", LEAF="#1B6B43",
       PINK="#E51A5A", SUN="#FFC72C", INK="#0B2A1E", SAND="#F2E2BC";
 
+/* ── Preload 2:47PM Studio logo ── */
+const _studioLogo = new Image();
+_studioLogo.onload = () => { if(ready) render(); };
+_studioLogo.src = "public/2:47PM.png";
+
 const CLASSES=["TERMINAL WIZARD","SHIP GOBLIN","LATE NIGHT ARCHITECT","BUG WHISPERER","PIXEL PIRATE",
   "COMMIT MACHINE","PROMPT SMUGGLER","LATENCY HUNTER","EDGE CASE MONK","DEMO DAY DAREDEVIL",
   "SCHEMA SURFER","REGEX SHAMAN","CACHE COWBOY","DEPLOY DERVISH"];
@@ -414,6 +419,22 @@ function drawPFP(){
   txt("HH GOA",c,58,"700 32px 'Space Grotesk'",SUN,"center",4);
   txt("2026",c,94,"700 24px 'Space Grotesk'",PAPER,"center",6);
   ribbon(c,S-92,500,64,"#FRAMEINGOA");
+
+  // ── 2:47PM Studio logo — bottom-right, bg matched to green band ──
+  if(_studioLogo.complete && _studioLogo.naturalWidth > 0){
+    const logoW = 130, logoH = Math.round(logoW * (_studioLogo.naturalHeight / _studioLogo.naturalWidth));
+    const lx = S - logoW - 28, ly = S - logoH - 8;
+    // paint exact LEAF color behind logo so its bg blends seamlessly
+    ctx.save();
+    ctx.fillStyle = LEAF;
+    ctx.fillRect(lx, ly, logoW, logoH);
+    ctx.restore();
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 1;
+    ctx.drawImage(_studioLogo, lx, ly, logoW, logoH);
+    ctx.restore();
+  }
 }
 
 /* ---------- BUILDER ID (boarding-pass style) ---------- */
@@ -439,14 +460,42 @@ function drawID(){
   ctx.quadraticCurveTo(W/2,hb+58,42,hb);ctx.closePath();ctx.fillStyle=FOREST;ctx.fill();ctx.restore();
   // lanyard slot
   ctx.save();rr(W/2-92,66,184,26,13);ctx.fillStyle=CREAM;ctx.fill();ctx.restore();
-  ctx.save();ctx.font="44px 'Alfa Slab One'";ctx.textBaseline="middle";
-  const a="HACKER ",bb="गोवा ",d="HOUSE";
-  const wa=ctx.measureText(a).width,wb=ctx.measureText(bb).width,wd=ctx.measureText(d).width;
-  let sx=W/2-(wa+wb+wd)/2;ctx.textAlign="left";
-  ctx.fillStyle=CREAM;ctx.fillText(a,sx,152);sx+=wa;
-  ctx.fillStyle=SUN;ctx.fillText(bb,sx,152);sx+=wb;
-  ctx.fillStyle=CREAM;ctx.fillText(d,sx,152);ctx.restore();
+
+  // ── HEADER TEXT: "HACKER HOUSE" then "गोवा" — same vibe as page h1 ──
+  ctx.save();ctx.textBaseline="middle";ctx.textAlign="left";
+
+  // Measure each part with their respective fonts
+  ctx.font="72px 'Bebas Neue'";
+  const wa=ctx.measureText("HACKER HOUSE ").width;
+  ctx.font="bold 68px 'Alfa Slab One', serif";
+  const wb=ctx.measureText("गोवा").width;
+
+  let sx=W/2-(wa+wb)/2;
+
+  // "HACKER HOUSE " — Bebas Neue, cream
+  ctx.font="72px 'Bebas Neue'";
+  ctx.fillStyle=CREAM;
+  ctx.fillText("HACKER HOUSE ",sx,152);sx+=wa;
+
+  // "गोवा" — Alfa Slab One, sun yellow + pink hard shadow (exact match to page h1 em)
+  ctx.font="bold 68px 'Alfa Slab One', serif";
+  ctx.fillStyle=PINK;
+  ctx.fillText("गोवा",sx+3,152+3);  // pink shadow offset
+  ctx.fillStyle=SUN;
+  ctx.fillText("गोवा",sx,152);
+  ctx.restore();
+
   txt("GOA, INDIA · 28–31 OCT 2026",W/2,200,"700 20px 'Space Grotesk'",SUN,"center",4);
+
+  // ── 2:47PM Studio logo — top RIGHT of header band ──
+  if(_studioLogo.complete && _studioLogo.naturalWidth > 0){
+    const logoW = 110, logoH = Math.round(logoW * (_studioLogo.naturalHeight / _studioLogo.naturalWidth));
+    const lx = W - 42 - logoW - 14, ly = 58;
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    ctx.drawImage(_studioLogo, lx, ly, logoW, logoH);
+    ctx.restore();
+  }
 
   /* ---- 2. PHOTO: portrait window, left aligned; meta on right ---- */
   const pw=352,ph=422,pxx=88,pyy=316;
