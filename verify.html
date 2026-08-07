@@ -24,22 +24,36 @@ body{
   color:var(--cream);
   font-family:"Space Grotesk",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;
-  display:flex;flex-direction:column;align-items:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   min-height:100vh;padding:28px 14px 60px;
 }
 /* Card container */
-#root{width:100%;max-width:520px}
+#root{
+  width:100%;max-width:520px;
+  display:flex;flex-direction:column;align-items:center;
+}
 /* Canvas full-width responsive */
-canvas{width:100%;height:auto;border-radius:20px;display:block;box-shadow:0 14px 0 rgba(0,0,0,.35)}
+canvas{
+  width:100%;max-width:520px;height:auto;
+  border-radius:20px;display:block;
+  box-shadow:0 14px 0 rgba(0,0,0,.35);
+  margin:0 auto;
+}
 /* CTA button */
 .cta{
-  width:100%;padding:16px 24px;background:var(--pink);color:#fff;
+  width:100%;max-width:520px;padding:16px 24px;background:var(--pink);color:#fff;
   border:0;border-radius:999px;font:700 15px "Space Grotesk",sans-serif;
   letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
   box-shadow:0 5px 0 rgba(0,0,0,.3);text-decoration:none;
   display:block;text-align:center;transition:.15s;touch-action:manipulation;
+  margin:0 auto;
 }
 .cta:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+/* Loading / error state */
+#stateLoading{
+  text-align:center;font-family:'DM Mono',monospace;
+  letter-spacing:.12em;padding-top:80px;width:100%;
+}
 /* Mobile */
 @media(max-width:480px){
   body{padding:20px 10px 48px}
@@ -49,7 +63,7 @@ canvas{width:100%;height:auto;border-radius:20px;display:block;box-shadow:0 14px
 </head>
 <body>
 <div id="root">
-  <div id="stateLoading" style="text-align:center;font-family:'DM Mono',monospace;letter-spacing:.12em;padding-top:80px">
+  <div id="stateLoading" class="stateLoading">
     <div style="font-size:48px;margin-bottom:16px">⏳</div>
     <h2 style="font-family:'Alfa Slab One',serif;font-size:28px;color:var(--sun);margin:0 0 8px">Verifying…</h2>
     <p style="font-size:13px;opacity:.7;margin:0">Fetching builder data</p>
@@ -224,18 +238,30 @@ function drawVerifyID(b, photoImg){
   ctx.fillStyle="rgba(27,107,67,.05)";
   for(let y=60;y<H;y+=46)for(let x=60;x<W;x+=46){ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill()}
 
-  // ── 1. HEADER ──
+  // ── 1. HEADER — exact match to framein-goa drawID ──
   const hb=232;
   ctx.save();ctx.beginPath();ctx.moveTo(42,42);ctx.lineTo(W-42,42);ctx.lineTo(W-42,hb);
   ctx.quadraticCurveTo(W/2,hb+58,42,hb);ctx.closePath();ctx.fillStyle=FOREST;ctx.fill();ctx.restore();
+  // lanyard slot
   ctx.save();rr(W/2-92,66,184,26,13);ctx.fillStyle=CREAM;ctx.fill();ctx.restore();
-  ctx.save();ctx.font="44px 'Alfa Slab One'";ctx.textBaseline="middle";
-  const ha="HACKER ",hb2="गोवा ",hd="HOUSE";
-  const hwa=ctx.measureText(ha).width,hwb=ctx.measureText(hb2).width,hwd=ctx.measureText(hd).width;
-  let hsx=W/2-(hwa+hwb+hwd)/2;ctx.textAlign="left";
-  ctx.fillStyle=CREAM;ctx.fillText(ha,hsx,152);hsx+=hwa;
-  ctx.fillStyle=SUN;ctx.fillText(hb2,hsx,152);hsx+=hwb;
-  ctx.fillStyle=CREAM;ctx.fillText(hd,hsx,152);ctx.restore();
+
+  // "HACKER HOUSE" in Bebas Neue + "गोवा" in Alfa Slab One (same as framein-goa h1)
+  ctx.save();ctx.textBaseline="middle";ctx.textAlign="left";
+  ctx.font="72px 'Bebas Neue'";
+  const wa=ctx.measureText("HACKER HOUSE ").width;
+  ctx.font="bold 68px 'Alfa Slab One', serif";
+  const wb=ctx.measureText("गोवा").width;
+  let sx=W/2-(wa+wb)/2;
+  // "HACKER HOUSE " — Bebas Neue, cream
+  ctx.font="72px 'Bebas Neue'";
+  ctx.fillStyle=CREAM;
+  ctx.fillText("HACKER HOUSE ",sx,152);sx+=wa;
+  // "गोवा" — Alfa Slab One, sun yellow + pink hard shadow
+  ctx.font="bold 68px 'Alfa Slab One', serif";
+  ctx.fillStyle=PINK;ctx.fillText("गोवा",sx+3,152+3);
+  ctx.fillStyle=SUN;ctx.fillText("गोवा",sx,152);
+  ctx.restore();
+
   txt("GOA, INDIA · 28–31 OCT 2026",W/2,200,"700 20px 'Space Grotesk'",SUN,"center",4);
 
   // ── 2. PHOTO + META ──
@@ -323,7 +349,7 @@ async function fetchBuilder(id){
 
 function renderError(msg){
   document.getElementById("root").innerHTML=`
-    <div style="text-align:center;font-family:'DM Mono',monospace;letter-spacing:.12em;padding-top:80px">
+    <div style="text-align:center;font-family:'DM Mono',monospace;letter-spacing:.12em;padding-top:80px;width:100%">
       <div style="font-size:48px;margin-bottom:16px">🤔</div>
       <h2 style="font-family:'Alfa Slab One',serif;font-size:28px;color:var(--sun);margin:0 0 8px">Builder Not Found</h2>
       <p style="font-size:13px;opacity:.7;margin:0 0 24px">${msg}</p>
@@ -348,9 +374,9 @@ function renderError(msg){
   // Swap loading state with canvas — NO overlay text, just the clean card
   const root=document.getElementById("root");
   root.innerHTML=`
-    <div style="width:100%;display:flex;flex-direction:column;align-items:stretch;gap:20px">
-      <canvas id="vcv" width="1040" height="1500"></canvas>
-      <a href="${SITE_URL}" class="cta">🌴 Make it yours</a>
+    <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:20px">
+      <canvas id="vcv" width="1040" height="1500" style="width:100%;max-width:520px;height:auto;border-radius:20px;display:block;box-shadow:0 14px 0 rgba(0,0,0,.35)"></canvas>
+      <a href="${SITE_URL}" class="cta" style="max-width:520px">🌴 Make it yours</a>
       <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;opacity:.55;text-align:center;margin:0">
         #FRAMEINGOA · HACKER HOUSE GOA 2026
       </p>
