@@ -93,6 +93,19 @@ function autoClass(n,r,s){return CLASSES[combinedHash(n,r,s)%CLASSES.length]}
 function builderId(n,r,s){return "#HH-GOA-"+String(1+combinedHash(n,r,s)%247).padStart(3,"0")}
 // ────────────────────────────────────────────────────────────────────
 
+/* ── Preload 2:47PM Studio logo (same as framein-goa) ── */
+const _studioLogo = new Image();
+_studioLogo.onload = () => {
+  // if card is already rendered, redraw with logo now loaded
+  if(cv && ctx) {
+    document.fonts.ready.then(async() => {
+      const photoImg = await loadPhoto(window._lastPhotoDataURL || null);
+      drawVerifyID(window._lastBuilder, photoImg);
+    });
+  }
+};
+_studioLogo.src = "public/2:47PM.png";
+
 let cv,ctx;
 
 // ── Canvas helpers ───────────────────────────────────────────────────
@@ -264,6 +277,16 @@ function drawVerifyID(b, photoImg){
 
   txt("GOA, INDIA · 28–31 OCT 2026",W/2,200,"700 20px 'Space Grotesk'",SUN,"center",4);
 
+  // ── 2:47PM Studio logo — top RIGHT of header band (exact match to framein-goa drawID) ──
+  if(_studioLogo.complete && _studioLogo.naturalWidth > 0){
+    const logoW = 110, logoH = Math.round(logoW * (_studioLogo.naturalHeight / _studioLogo.naturalWidth));
+    const lx = W - 42 - logoW - 14, ly = 58;
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    ctx.drawImage(_studioLogo, lx, ly, logoW, logoH);
+    ctx.restore();
+  }
+
   // ── 2. PHOTO + META ──
   const pw=352,ph=422,pxx=88,pyy=316;
   sunRays(pxx+pw/2,pyy+ph/2,240,"rgba(255,246,223,.95)","rgba(255,199,44,.20)");
@@ -357,6 +380,17 @@ function renderError(msg){
     </div>`;
 }
 
+// ── Photo loader (hoisted so logo onload can reuse it) ───────────────
+async function loadPhoto(dataURL){
+  if(!dataURL) return null;
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=()=>resolve(null);
+    img.src=dataURL;
+  });
+}
+
 // ── Main ──────────────────────────────────────────────────────────────
 (async()=>{
   const params=new URLSearchParams(location.search);
@@ -385,15 +419,8 @@ function renderError(msg){
   cv=document.getElementById("vcv");
   ctx=cv.getContext("2d");
 
-  async function loadPhoto(dataURL){
-    if(!dataURL) return null;
-    return new Promise(resolve=>{
-      const img=new Image();
-      img.onload=()=>resolve(img);
-      img.onerror=()=>resolve(null);
-      img.src=dataURL;
-    });
-  }
+  window._lastBuilder = builder;
+  window._lastPhotoDataURL = builder.photo || null;
 
   document.fonts.ready.then(async()=>{
     const photoImg=await loadPhoto(builder.photo||null);
