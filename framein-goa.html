@@ -9,6 +9,7 @@
 <meta property="og:description" content="Make your HH Goa 2026 PFP frame + Builder ID in one pass."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bebas+Neue&family=DM+Mono:wght@500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
 :root{
   --cream:#F7EFD8; --paper:#FDF8EC; --forest:#0E3B2A; --leaf:#1B6B43;
@@ -149,148 +150,24 @@ function hash(s){let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0
 function autoClass(n){return CLASSES[hash(n||"builder")%CLASSES.length]}
 function builderId(n){return "#HH-GOA-"+String(1+hash(n||"goa")%247).padStart(3,"0")}
 
-/* ---- Tiny QR encoder (version 3, byte mode, EC level M) ---- *
- * Encodes any short string (URL etc) into a QR matrix.         *
- * Returns a boolean[29][29] matrix (version 3 = 29×29).        */
-function makeQR(text){
-  // Version 3-M: 29×29, 26 data codewords, 22 EC codewords
-  const N=29;
-  const mat=Array.from({length:N},()=>new Array(N).fill(null));
-  const res=Array.from({length:N},()=>new Array(N).fill(false));
-
-  function setM(r,c,v){if(r>=0&&r<N&&c>=0&&c<N)mat[r][c]=v}
-  function reserve(r,c){if(r>=0&&r<N&&c>=0&&c<N)res[r][c]=true}
-
-  // finder pattern + separator
-  function finder(r,c){
-    for(let dr=0;dr<7;dr++)for(let dc=0;dc<7;dc++){
-      const v=(dr===0||dr===6||dc===0||dc===6||(dr>=2&&dr<=4&&dc>=2&&dc<=4));
-      setM(r+dr,c+dc,v);reserve(r+dr,c+dc);
-    }
-    for(let i=-1;i<=7;i++){
-      if(r+i>=0&&r+i<N){
-        if(c-1>=0){setM(r+i,c-1,false);reserve(r+i,c-1);}
-        if(c+7<N){setM(r+i,c+7,false);reserve(r+i,c+7);}
-      }
-      if(c+i>=0&&c+i<N){
-        if(r-1>=0){setM(r-1,c+i,false);reserve(r-1,c+i);}
-        if(r+7<N){setM(r+7,c+i,false);reserve(r+7,c+i);}
-      }
-    }
-  }
-  finder(0,0);finder(0,N-7);finder(N-7,0);
-
-  // alignment pattern (version 3: one at row 22, col 22)
-  const ap=[[22,22]];
-  ap.forEach(([ar,ac])=>{
-    for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){
-      const v=(Math.abs(dr)===2||Math.abs(dc)===2||dr===0&&dc===0);
-      if(mat[ar+dr][ac+dc]===null){setM(ar+dr,ac+dc,v);reserve(ar+dr,ac+dc);}
-    }
-  });
-
-  // timing strips
-  for(let i=8;i<N-8;i++){
-    setM(6,i,i%2===0);reserve(6,i);
-    setM(i,6,i%2===0);reserve(i,6);
-  }
-
-  // dark module
-  setM(N-8,8,true);reserve(N-8,8);
-
-  // reserve format info areas
-  for(let i=0;i<=8;i++){reserve(8,i);reserve(i,8);}
-  for(let i=N-8;i<N;i++){reserve(8,i);reserve(i,8);}
-
-  // --- byte mode encoding ---
-  const bytes=[];
-  for(let i=0;i<text.length;i++)bytes.push(text.charCodeAt(i)&0xFF);
-
-  const bits=[];
-  const pushBits=(v,n)=>{for(let i=n-1;i>=0;i--)bits.push((v>>i)&1)};
-  pushBits(0b0100,4);          // byte mode
-  pushBits(bytes.length,8);    // char count (version 3, byte)
-  bytes.forEach(b=>pushBits(b,8));
-  pushBits(0,4);               // terminator
-  while(bits.length%8)bits.push(0);
-
-  // data codewords = 26 for version 3-M
-  const dataBytes=[];
-  for(let i=0;i<bits.length;i+=8)
-    dataBytes.push(bits.slice(i,i+8).reduce((a,b,j)=>a|(b<<(7-j)),0));
-  const pad=[0xEC,0x11];
-  while(dataBytes.length<26)dataBytes.push(pad[dataBytes.length%2]);
-
-  // --- Reed-Solomon (22 EC codewords for ver 3-M) ---
-  const gfExp=new Uint8Array(512),gfLog=new Uint8Array(256);
-  let x=1;
-  for(let i=0;i<255;i++){gfExp[i]=x;gfLog[x]=i;x<<=1;if(x&256)x^=0x11D;}
-  for(let i=255;i<512;i++)gfExp[i]=gfExp[i-255];
-  const gfMul=(a,b)=>a&&b?gfExp[(gfLog[a]+gfLog[b])%255]:0;
-
-  // generator poly for 22 EC codewords
-  let gen=[1];
-  for(let i=0;i<22;i++){
-    const r=[0,...gen];
-    for(let j=0;j<gen.length;j++)r[j]^=gfMul(gen[j],gfExp[i]);
-    gen=r;
-  }
-  const msg=[...dataBytes,...new Array(22).fill(0)];
-  for(let i=0;i<dataBytes.length;i++){
-    const coef=msg[i];if(!coef)continue;
-    for(let j=0;j<gen.length;j++)msg[i+j]^=gfMul(gen[j],coef);
-  }
-  const ec=msg.slice(dataBytes.length,dataBytes.length+22);
-  const allBytes=[...dataBytes,...ec];
-
-  const data=[];
-  allBytes.forEach(b=>{for(let i=7;i>=0;i--)data.push((b>>i)&1)});
-
-  // --- place data bits (standard QR zigzag, mask 0: (r+c)%2===0) ---
-  let idx=0;
-  const zigCols=[];
-  for(let c=N-1;c>=1;c-=2){if(c===6)c=5;zigCols.push(c);}
-  for(let ci=0;ci<zigCols.length;ci++){
-    const col=zigCols[ci];
-    const goUp=(ci%2===0);
-    for(let ri=0;ri<N;ri++){
-      const row=goUp?N-1-ri:ri;
-      for(let dc=0;dc<2;dc++){
-        const c2=col-dc;
-        if(c2<0||res[row][c2])continue;
-        const bit=idx<data.length?data[idx]:0;
-        idx++;
-        // mask 0: invert if (row+col)%2===0
-        mat[row][c2]=((row+c2)%2===0)?(bit===0):(bit===1);
-      }
-    }
-  }
-
-  // --- format string: EC level M (01) + mask 0 (000) = 010 000 00 ---
-  // format bits = 01000 00000 XOR 101010101010101 mask
-  // pre-computed for M + mask0: 100110111011110  (LSB to bit14)
-  const fmtWord=0b100110111011110;
-  const fmtBits=[];for(let i=14;i>=0;i--)fmtBits.push((fmtWord>>i)&1);
-  // place format around top-left finder
-  const fp1=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
-  // place format around top-right and bottom-left finders
-  const fp2=[[N-1,8],[N-2,8],[N-3,8],[N-4,8],[N-5,8],[N-6,8],[N-7,8],[8,N-8],[8,N-7],[8,N-6],[8,N-5],[8,N-4],[8,N-3],[8,N-2],[8,N-1]];
-  fp1.forEach(([r,c],i)=>{mat[r][c]=!!fmtBits[i]});
-  fp2.forEach(([r,c],i)=>{mat[r][c]=!!fmtBits[i]});
-
-  return mat;
-}
-
-/* Draw QR code onto canvas at (x,y) with size s */
-function drawQR(mat,x,y,s,darkColor,lightColor){
-  const N=mat.length, cell=s/N;
+/* ---- QR via qrcode-generator library (auto version, handles long URLs) ---- */
+function makeQRCanvas(text, x, y, size, darkColor, lightColor){
+  // qrcode-generator: typeNumber 0 = auto, M = medium error correction
+  const qr = qrcode(0, 'M');
+  qr.addData(text);
+  qr.make();
+  const N = qr.getModuleCount();
+  const cell = size / N;
   ctx.save();
-  // white background with quiet zone
-  ctx.fillStyle=lightColor||"#ffffff";
-  ctx.fillRect(x-cell*2,y-cell*2,s+cell*4,s+cell*4);
-  ctx.fillStyle=darkColor||FOREST;
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++)
-    if(mat[r][c])ctx.fillRect(x+c*cell,y+r*cell,cell,cell);
+  // background + quiet zone
+  ctx.fillStyle = lightColor || "#ffffff";
+  ctx.fillRect(x - cell * 2, y - cell * 2, size + cell * 4, size + cell * 4);
+  ctx.fillStyle = darkColor || FOREST;
+  for(let r = 0; r < N; r++){
+    for(let c = 0; c < N; c++){
+      if(qr.isDark(r, c)) ctx.fillRect(x + c * cell, y + r * cell, cell, cell);
+    }
+  }
   ctx.restore();
 }
 
@@ -388,13 +265,6 @@ function waves(x,y,w,c,n=3){ctx.save();ctx.strokeStyle=c;ctx.lineWidth=4;ctx.lin
   for(let j=0;j<n;j++){ctx.beginPath();for(let i=0;i<=w;i+=6)ctx.lineTo(x+i,y+j*13+Math.sin(i/13)*4);ctx.stroke()}ctx.restore()}
 function barcode(x,y,w,h,seed){ctx.save();ctx.fillStyle=INK;let p=x,s=seed;
   while(p<x+w){s=(s*1103515245+12345)>>>0;const bw=2+(s>>16)%7;if((s>>8)%3)ctx.fillRect(p,y,bw,h);p+=bw+3}ctx.restore()}
-function qr(x,y,s,seed){ctx.save();const n=13,c=s/n;ctx.fillStyle="#fff";ctx.fillRect(x-4,y-4,s+8,s+8);
-  let h=seed;ctx.fillStyle=FOREST;
-  for(let i=0;i<n;i++)for(let j=0;j<n;j++){h=(h*48271)%2147483647;
-    const eye=(i<4&&j<4)||(i<4&&j>n-5)||(i>n-5&&j<4);
-    if(eye){const bi=i<4?i:n-1-i, bj=j<4?j:n-1-j;if(bi===1||bj===1)continue;}
-    if(eye||h%100>52)ctx.fillRect(x+j*c,y+i*c,c,c)}
-  ctx.fillStyle=SUN;ctx.fillRect(x+s/2-c,y+s/2-c,c*2,c*2);ctx.restore()}
 function stamp(x,y,w,h){ctx.save();ctx.translate(x,y);ctx.fillStyle=PAPER;ctx.strokeStyle=FOREST;ctx.lineWidth=4;
   ctx.setLineDash([7,7]);rr(0,0,w,h,8);ctx.fill();ctx.stroke();ctx.setLineDash([]);
   ctx.save();ctx.beginPath();rr(9,9,w-18,h-18,5);ctx.clip();ctx.fillStyle="#FFF0CE";ctx.fillRect(9,9,w-18,h-18);
@@ -626,9 +496,8 @@ function drawID(){
   if(hasName){
     // QR encodes a short URL so scanning opens a digital verification page
     const qrURL=VERIFY_URL+"?id="+bidNum;
-    const qrMat=makeQR(qrURL);
     const qrSize=qrFrame-qrPad*2;
-    drawQR(qrMat,innerX+qrPad,innerY+qrPad,qrSize,FOREST,"#FFFFFF");
+    makeQRCanvas(qrURL, innerX+qrPad, innerY+qrPad, qrSize, FOREST, "#FFFFFF");
 
     // "SCAN TO VERIFY" label — same DM Mono style as card labels
     txt("SCAN TO VERIFY",qrCardX+qrCardW/2,innerY+qrFrame+20,
@@ -815,15 +684,79 @@ async function load(file){
 function filename(){return (mode==="pfp"?"hhgoa-2026-pfp":"hhgoa-2026-builder-id")+".png"}
 function blobOut(){return new Promise(r=>cv.toBlob(r,"image/png"))}
 
-/* --- save builder to Supabase (upsert — safe to call multiple times) --- */
-async function saveBuilder(){
-  if(mode!=="id") return;
-  const nameVal = ($("name").value||"").trim();
-  if(!nameVal) return;
+/* --- check if a builder ID already exists in Supabase --- */
+async function builderExists(bidNum){
+  try{
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/builders?id=eq.${encodeURIComponent(bidNum)}&select=id,name`,
+      { headers:{
+          "apikey":        SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      }}
+    );
+    if(!res.ok) return null;
+    const rows = await res.json();
+    return rows[0] || null;
+  } catch(e){ return null; }
+}
 
-  const bid   = builderId(nameVal.toUpperCase());
-  const bidNum= bid.replace("#HH-GOA-","");
-  const cls   = ($("cls").value||autoClass(nameVal.toUpperCase())).toUpperCase();
+/* --- toast notification --- */
+function showToast(msg, type="info"){
+  let t = document.getElementById("toast");
+  if(!t){
+    t = document.createElement("div");
+    t.id = "toast";
+    t.style.cssText = `
+      position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
+      padding:14px 24px; border-radius:999px; font:700 13px 'Space Grotesk',sans-serif;
+      letter-spacing:.06em; text-transform:uppercase; z-index:9999;
+      box-shadow:0 6px 24px rgba(0,0,0,.35); opacity:0;
+      transition:opacity .22s, transform .22s; pointer-events:none; white-space:nowrap;
+    `;
+    document.body.appendChild(t);
+  }
+  const colors = {
+    info:    {bg:"#FFC72C", color:"#0B2A1E"},
+    error:   {bg:"#E51A5A", color:"#fff"},
+    success: {bg:"#1B6B43", color:"#F7EFD8"}
+  };
+  const c = colors[type] || colors.info;
+  t.style.background = c.bg;
+  t.style.color = c.color;
+  t.textContent = msg;
+  t.style.opacity = "1";
+  t.style.transform = "translateX(-50%) translateY(0)";
+  clearTimeout(t._hide);
+  t._hide = setTimeout(()=>{
+    t.style.opacity = "0";
+    t.style.transform = "translateX(-50%) translateY(20px)";
+  }, 3500);
+}
+
+/* --- save builder to Supabase --- */
+async function saveBuilder(){
+  if(mode!=="id") return true; // PFP mode — no save needed, allow download
+  const nameVal = ($("name").value||"").trim();
+  if(!nameVal) return false;
+
+  const nameUp  = nameVal.toUpperCase();
+  const bid     = builderId(nameUp);
+  const bidNum  = bid.replace("#HH-GOA-","");
+  const cls     = ($("cls").value||autoClass(nameUp)).toUpperCase();
+
+  // check if this ID already exists
+  const existing = await builderExists(bidNum);
+
+  if(existing){
+    // same name = same person downloading again → allow, just update
+    if(existing.name === nameUp){
+      showToast("Welcome back, " + nameVal + " 👋", "success");
+    } else {
+      // different name but same hash → collision, block
+      showToast("Builder ID " + bid + " is already taken — try a slightly different name", "error");
+      return false;
+    }
+  }
 
   try{
     await fetch(`${SUPABASE_URL}/rest/v1/builders`, {
@@ -832,18 +765,21 @@ async function saveBuilder(){
         "apikey":          SUPABASE_ANON_KEY,
         "Authorization":   `Bearer ${SUPABASE_ANON_KEY}`,
         "Content-Type":    "application/json",
-        "Prefer":          "resolution=merge-duplicates"   // upsert
+        "Prefer":          "resolution=merge-duplicates"
       },
       body: JSON.stringify({
         id:            bidNum,
-        name:          nameVal.toUpperCase(),
+        name:          nameUp,
         role:          ($("role").value||"").trim().toUpperCase(),
         shipping:      ($("shipping").value||"").trim().toUpperCase(),
         builder_class: cls
       })
     });
+    if(!existing) showToast("Builder ID " + bid + " registered ✓", "success");
+    return true;
   } catch(e){
     console.warn("Supabase save failed (offline?)", e);
+    return true; // don't block download on network error
   }
 }
 
@@ -865,7 +801,8 @@ function checkReady(){
 
 $("dl").onclick=async()=>{
   if(!isComplete()) return;
-  await saveBuilder();
+  const ok = await saveBuilder();
+  if(!ok) return;
   const b=await blobOut(), a=document.createElement("a");
   a.href=URL.createObjectURL(b);a.download=filename();a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
@@ -873,7 +810,8 @@ $("dl").onclick=async()=>{
 
 $("share").onclick=async()=>{
   if(!isComplete()) return;
-  await saveBuilder();
+  const ok = await saveBuilder();
+  if(!ok) return;
   const name=($("name").value||"").trim();
   const role=($("role").value||"").trim();
   const ship=($("shipping").value||"").trim();
