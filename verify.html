@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Builder Verified · HH Goa 2026</title>
+<meta name="description" content="HH Goa 2026 Builder ID verification"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bebas+Neue&family=DM+Mono:wght@500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F7EFD8; --paper:#FDF8EC; --forest:#0E3B2A; --leaf:#1B6B43;
+  --pink:#E51A5A; --sun:#FFC72C; --ink:#0B2A1E;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100vh}
+body{
+  background:var(--forest);
+  background-image:
+    radial-gradient(120% 60% at 50% -10%, #17553B 0%, rgba(23,85,59,0) 60%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.028) 0 14px, rgba(0,0,0,0) 14px 28px);
+  color:var(--cream);
+  font-family:"Space Grotesk",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; min-height:100vh; padding:32px 16px 64px;
+}
+
+/* ---- loading / error states ---- */
+.state{text-align:center;font-family:"DM Mono",monospace;letter-spacing:.12em}
+.state .icon{font-size:48px;margin-bottom:16px}
+.state h2{font-family:"Alfa Slab One",serif;font-size:28px;color:var(--sun);margin:0 0 8px}
+.state p{font-size:13px;opacity:.7;margin:0}
+
+/* ---- card ---- */
+.card-wrap{
+  width:100%; max-width:420px;
+  display:flex; flex-direction:column; align-items:center; gap:24px;
+}
+
+.card{
+  width:100%; background:var(--paper); color:var(--ink);
+  border-radius:28px; overflow:hidden;
+  box-shadow:0 0 0 4px var(--sun), 0 16px 0 rgba(0,0,0,.35);
+  position:relative;
+}
+
+/* card header band */
+.card-header{
+  background:var(--forest); padding:20px 24px 16px;
+  text-align:center; position:relative;
+}
+.card-header .lanyard{
+  width:120px; height:18px; background:var(--cream);
+  border-radius:6px; margin:0 auto 14px;
+}
+.card-header h1{
+  font-family:"Alfa Slab One",serif;
+  font-size:22px; line-height:1; margin:0 0 4px;
+  color:var(--cream);
+}
+.card-header h1 em{font-style:normal; color:var(--sun)}
+.card-header .sub{
+  font-family:"DM Mono",monospace;
+  font-size:10px; letter-spacing:.22em;
+  color:var(--sun); opacity:.9; text-transform:uppercase;
+}
+
+/* avatar */
+.avatar-ring{
+  width:96px; height:96px;
+  border-radius:50%;
+  background:var(--leaf);
+  border:5px solid var(--sun);
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto; position:relative; top:-18px; margin-bottom:-10px;
+  overflow:hidden;
+  box-shadow:0 6px 0 rgba(0,0,0,.25);
+}
+.avatar-ring .initials{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:36px; color:var(--cream); letter-spacing:.06em;
+  user-select:none;
+}
+
+/* body */
+.card-body{padding:0 24px 24px; text-align:center}
+.builder-name{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:38px; letter-spacing:.04em;
+  color:var(--ink); line-height:1; margin:0 0 6px;
+  word-break:break-word;
+}
+.builder-role{
+  font-family:"Space Grotesk",sans-serif;
+  font-weight:700; font-size:13px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--pink); margin:0 0 18px;
+}
+
+/* field rows */
+.fields{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.field{
+  background:#FFF8E8; border:2px solid rgba(14,59,42,.12);
+  border-radius:14px; padding:10px 16px; text-align:left;
+}
+.field-label{
+  font-family:"DM Mono",monospace;
+  font-size:9px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--leaf); margin-bottom:4px;
+}
+.field-value{
+  font-family:"Space Grotesk",sans-serif;
+  font-weight:700; font-size:14px; color:var(--ink);
+  word-break:break-word;
+}
+
+/* shipping strip */
+.ship-strip{
+  background:var(--forest);
+  border-radius:12px; padding:12px 16px;
+  text-align:center; margin-bottom:18px;
+}
+.ship-strip .ship-label{
+  font-family:"DM Mono",monospace;
+  font-size:9px; letter-spacing:.22em; color:var(--sun); margin-bottom:4px;
+}
+.ship-strip .ship-value{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:22px; letter-spacing:.06em; color:var(--cream);
+  word-break:break-word;
+}
+
+/* badge row */
+.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.badge{
+  background:var(--sun); color:var(--ink);
+  font-family:"Space Grotesk",sans-serif;
+  font-weight:700; font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; padding:5px 12px;
+  border-radius:999px;
+}
+.badge.green{background:var(--leaf);color:var(--cream)}
+
+/* builder id footer */
+.bid-row{
+  display:flex; align-items:center; justify-content:space-between;
+  border-top:2px dashed rgba(14,59,42,.2); padding-top:14px;
+}
+.bid-label{
+  font-family:"DM Mono",monospace;
+  font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--leaf);
+}
+.bid-value{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:22px; color:var(--ink); letter-spacing:.08em;
+}
+.verified-dot{
+  display:flex; align-items:center; gap:6px;
+  font-family:"DM Mono",monospace;
+  font-size:10px; color:var(--leaf); letter-spacing:.1em;
+}
+.verified-dot::before{
+  content:"";
+  width:8px; height:8px; background:#22C55E;
+  border-radius:50%; display:block;
+  box-shadow:0 0 6px #22C55E;
+}
+
+/* CTA button */
+.cta{
+  width:100%; padding:18px 24px;
+  background:var(--pink); color:#fff;
+  border:0; border-radius:999px;
+  font-family:"Space Grotesk",sans-serif;
+  font-weight:700; font-size:16px; letter-spacing:.06em;
+  text-transform:uppercase; cursor:pointer;
+  box-shadow:0 6px 0 rgba(0,0,0,.3);
+  text-decoration:none; display:block; text-align:center;
+  transition:.15s;
+}
+.cta:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+
+.hint{
+  font-family:"DM Mono",monospace;
+  font-size:11px; letter-spacing:.12em;
+  opacity:.6; text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div id="root">
+  <!-- loading -->
+  <div class="state" id="stateLoading">
+    <div class="icon">⏳</div>
+    <h2>Verifying…</h2>
+    <p>Fetching builder data</p>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG — replace with your actual values ───────────────────────
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SITE_URL = "YOUR_DEPLOYED_SITE_URL"; // e.g. https://hhgoa.vercel.app
+// ────────────────────────────────────────────────────────────────────
+
+async function fetchBuilder(id){
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/builders?id=eq.${encodeURIComponent(id)}&select=*`,
+    { headers:{
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    }}
+  );
+  if(!res.ok) throw new Error("fetch failed");
+  const rows = await res.json();
+  return rows[0] || null;
+}
+
+function initials(name){
+  return name.split(" ").slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?";
+}
+
+function renderCard(b){
+  const root = document.getElementById("root");
+  root.innerHTML = `
+    <div class="card-wrap">
+      <div class="card">
+        <div class="card-header">
+          <div class="lanyard"></div>
+          <h1>HACKER <em>गोवा</em> HOUSE</h1>
+          <div class="sub">GOA, INDIA · 28–31 OCT 2026</div>
+        </div>
+
+        <div class="avatar-ring">
+          <span class="initials">${initials(b.name)}</span>
+        </div>
+
+        <div class="card-body">
+          <div class="builder-name">${escHtml(b.name)}</div>
+          <div class="builder-role">${escHtml(b.role||"Builder")}</div>
+
+          <div class="fields">
+            <div class="field">
+              <div class="field-label">Builder Class</div>
+              <div class="field-value">${escHtml(b.builder_class||"—")}</div>
+            </div>
+          </div>
+
+          <div class="ship-strip">
+            <div class="ship-label">✦ Currently Shipping ✦</div>
+            <div class="ship-value">${escHtml(b.shipping||"Building the future")}</div>
+          </div>
+
+          <div class="badges">
+            <span class="badge">HH Goa 2026</span>
+            <span class="badge green">Build · Ship · Repeat</span>
+          </div>
+
+          <div class="bid-row">
+            <div>
+              <div class="bid-label">Builder ID</div>
+              <div class="bid-value">#HH-GOA-${escHtml(b.id)}</div>
+            </div>
+            <div class="verified-dot">VERIFIED</div>
+          </div>
+        </div>
+      </div>
+
+      <a class="cta" href="${SITE_URL}">🌴 Make it yours</a>
+
+      <p class="hint">#FRAMEINGOA · HACKER HOUSE GOA 2026</p>
+    </div>
+  `;
+}
+
+function renderError(msg){
+  document.getElementById("root").innerHTML = `
+    <div class="state">
+      <div class="icon">🤔</div>
+      <h2>Builder Not Found</h2>
+      <p>${msg}</p>
+      <br/>
+      <a class="cta" href="${SITE_URL}" style="display:inline-block;padding:14px 32px;margin-top:8px">
+        🌴 Make your own
+      </a>
+    </div>
+  `;
+}
+
+function escHtml(s){
+  return String(s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+
+// ─── Main ────────────────────────────────────────────────────────────
+(async()=>{
+  // URL pattern: /verify.html?id=001  OR  /v/001
+  const params = new URLSearchParams(location.search);
+  let id = params.get("id");
+
+  // also handle path-based: /v/001
+  if(!id){
+    const m = location.pathname.match(/\/v\/(\d+)$/);
+    if(m) id = m[1];
+  }
+
+  if(!id){
+    renderError("No builder ID in the URL.");
+    return;
+  }
+
+  // zero-pad to 3 digits
+  id = String(parseInt(id,10)||0).padStart(3,"0");
+
+  try{
+    const builder = await fetchBuilder(id);
+    if(!builder){ renderError("This ID hasn't been registered yet."); return; }
+    renderCard(builder);
+  } catch(e){
+    renderError("Couldn't reach the server. Try again in a moment.");
+  }
+})();
+</script>
+</body>
+</html>
