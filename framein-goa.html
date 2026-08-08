@@ -405,9 +405,9 @@ function drawPFP(){
 function drawID(){
   const W=1040,H=1500;cv.width=W;cv.height=H;
   const hasName=($("name").value||"").trim().length>0;
-  const name=($("name").value||"YOUR NAME").toUpperCase();
-  const role=($("role").value||"BUILDER").toUpperCase();
-  const ship=($("shipping").value||"BUILDING THE FUTURE").toUpperCase();
+  const name=(($("name").value||"").trim()||"YOUR NAME").toUpperCase();
+  const role=(($("role").value||"").trim()||"BUILDER").toUpperCase();
+  const ship=(($("shipping").value||"").trim()||"BUILDING THE FUTURE").toUpperCase();
   const cls=($("cls").value||autoClass(name,role,ship)).toUpperCase();
   ctx.clearRect(0,0,W,H);
 
@@ -905,6 +905,11 @@ function photoToBase64(){
   });
 }
 
+/* --- session registry: tracks IDs saved/confirmed this tab session ---
+   Key = "name|role|ship" string. Once an entry is in here, we skip
+   Supabase entirely so same-tab repeat clicks always work instantly.   */
+const _sessionSaved = new Set();
+
 /* --- save builder to Supabase --- */
 async function saveBuilder(){
   if(mode!=="id") return true; // PFP mode — no save needed, allow download
@@ -916,6 +921,12 @@ async function saveBuilder(){
   const shipVal = ($("shipping").value||"").trim().toUpperCase();
   const bid     = builderId(nameUp, roleVal, shipVal);
   const cls     = ($("cls").value||autoClass(nameUp, roleVal, shipVal)).toUpperCase();
+  const sessionKey = nameUp + "|" + roleVal + "|" + shipVal;
+
+  // ── Same-tab shortcut: already saved this session → allow freely ──
+  if(_sessionSaved.has(sessionKey)){
+    return true;
+  }
 
   const existing = await builderExists(bid);
 
@@ -925,13 +936,14 @@ async function saveBuilder(){
                     && existing.shipping === shipVal;
 
     if(sameEntry){
-      // exact duplicate — already registered, allow download/share but show a toast
+      // Registered before (different session/tab) — mark session, allow, inform user
       window._alreadyRegistered = true;
-      render(); // redraw without barcode/scanner
+      _sessionSaved.add(sessionKey);
+      render();
       showToast("Already registered! " + bid, "info");
-      return true; // still allow download + share
+      return true;
     } else {
-      // same hash → same ID number but different details → ID collision, block
+      // Same hash, different details → ID collision, block
       showToast("Builder ID " + bid + " is already taken — try a slightly different name", "error");
       return false;
     }
@@ -953,16 +965,19 @@ async function saveBuilder(){
       body: JSON.stringify({
         id:            bid,
         name:          nameUp,
-        role:          ($("role").value||"").trim().toUpperCase(),
-        shipping:      ($("shipping").value||"").trim().toUpperCase(),
+        role:          roleVal,
+        shipping:      shipVal,
         builder_class: cls,
         photo:         photo
       })
     });
-    if(!existing) showToast("Builder ID " + bid + " registered ✓", "success");
+    // Mark as saved for this session so repeat clicks skip Supabase
+    _sessionSaved.add(sessionKey);
+    showToast("Builder ID " + bid + " registered ✓", "success");
     return true;
   } catch(e){
     console.warn("Supabase save failed (offline?)", e);
+    _sessionSaved.add(sessionKey);
     return true;
   }
 }
@@ -1000,17 +1015,24 @@ $("share").onclick=async()=>{
   const role=($("role").value||"").trim();
   const ship=($("shipping").value||"").trim();
 
+  // Build verification URL for ID mode (matches exact card ID)
+  const nameUp = name.toUpperCase(), roleUp = role.toUpperCase(), shipUp = ship.toUpperCase();
+  const verifyLink = mode==="id" && name
+    ? VERIFY_URL + "?id=" + encodeURIComponent(builderId(nameUp, roleUp, shipUp))
+    : null;
+
   const text = mode==="pfp"
     ? `🌴 Heading to Hacker House Goa 2026 — 28–31 Oct, Goa, India.\nBuild. Ship. Repeat.\n\nMake your own PFP frame 👉 ${SITE_URL}\n\n#FrameInGoa #HackerHouseGoa #HHGoa2026`
-    : `🌴 My Hacker House Goa 2026 Builder ID just dropped.\n\n👤 ${name}${role?" · "+role:""}\n🚢 Currently shipping: ${ship||"the future"}\n\nGenerate yours 👉 ${SITE_URL}\n\n#FrameInGoa #HackerHouseGoa #HHGoa2026 #BuildInPublic`;
+    : `🌴 My Hacker House Goa 2026 Builder ID just dropped.\n\n👤 ${name}${role?" · "+role:""}\n🚢 Currently shipping: ${ship||"the future"}\n\n🔍 Verify: ${verifyLink}\n\n#FrameInGoa #HackerHouseGoa #HHGoa2026 #BuildInPublic`;
 
+  // Try native share sheet first (mobile / supported browsers) — shares image directly
   const b=await blobOut(), file=new File([b],filename(),{type:"image/png"});
   if(navigator.canShare&&navigator.canShare({files:[file]})){
-    try{ await navigator.share({files:[file],text}); return }catch(e){}
+    try{ await navigator.share({files:[file],text}); return }catch(e){ if(e.name==="AbortError") return; }
   }
-  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename();a.click();
+  // Desktop fallback: open Twitter intent only — no forced download
   window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(text),"_blank");
-  $("hint").textContent="Image downloaded — attach it to the post that just opened.";
+  $("hint").textContent="Post opened — download the image and attach it to the tweet.";
 };
 
 document.fonts.ready.then(()=>{ready=true;render();checkReady()});
