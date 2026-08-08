@@ -99,6 +99,12 @@ _studioLogo.onload = () => {
   // if card is already rendered, redraw with logo now loaded
   if(cv && ctx) {
     document.fonts.ready.then(async() => {
+      await Promise.all([
+        document.fonts.load("72px 'Bebas Neue'"),
+        document.fonts.load("700 68px 'Alfa Slab One'"),
+        document.fonts.load("700 40px 'Space Grotesk'"),
+        document.fonts.load("500 15px 'DM Mono'"),
+      ]).catch(()=>{});
       const photoImg = await loadPhoto(window._lastPhotoDataURL || null);
       drawVerifyID(window._lastBuilder, photoImg);
     });
@@ -261,18 +267,30 @@ function drawVerifyID(b, photoImg){
   // "HACKER HOUSE" in Bebas Neue + "गोवा" in Alfa Slab One (same as framein-goa h1)
   ctx.save();ctx.textBaseline="middle";ctx.textAlign="left";
   ctx.font="72px 'Bebas Neue'";
-  const wa=ctx.measureText("HACKER HOUSE ").width;
+  const wHacker = ctx.measureText("HACKER ").width;
+  const wHouse  = ctx.measureText(" HOUSE").width;
   ctx.font="bold 68px 'Alfa Slab One', serif";
-  const wb=ctx.measureText("गोवा").width;
-  let sx=W/2-(wa+wb)/2;
-  // "HACKER HOUSE " — Bebas Neue, cream
+  const wGoa    = ctx.measureText("गोवा").width;
+  const totalW = wHacker + wGoa + wHouse;
+  let sx=W/2 - totalW/2;
+  // "HACKER " — Bebas Neue, cream
   ctx.font="72px 'Bebas Neue'";
   ctx.fillStyle=CREAM;
-  ctx.fillText("HACKER HOUSE ",sx,152);sx+=wa;
-  // "गोवा" — Alfa Slab One, sun yellow + pink hard shadow
+  ctx.fillText("HACKER ",sx,152);
+  sx += wHacker;
+  // "गोवा" — tilted ~-8deg, Alfa Slab One, sun yellow + pink shadow
+  ctx.save();
+  ctx.translate(sx + wGoa/2, 152);
+  ctx.rotate(-0.14);
   ctx.font="bold 68px 'Alfa Slab One', serif";
-  ctx.fillStyle=PINK;ctx.fillText("गोवा",sx+3,152+3);
-  ctx.fillStyle=SUN;ctx.fillText("गोवा",sx,152);
+  ctx.fillStyle=PINK;ctx.fillText("गोवा", -wGoa/2 + 3, 3);
+  ctx.fillStyle=SUN;ctx.fillText("गोवा", -wGoa/2, 0);
+  ctx.restore();
+  sx += wGoa;
+  // " HOUSE" — Bebas Neue, cream
+  ctx.font="72px 'Bebas Neue'";
+  ctx.fillStyle=CREAM;
+  ctx.fillText(" HOUSE",sx,152);
   ctx.restore();
 
   txt("GOA, INDIA · 28–31 OCT 2026",W/2,200,"700 20px 'Space Grotesk'",SUN,"center",4);
@@ -318,10 +336,18 @@ function drawVerifyID(b, photoImg){
 
   // ── 4. BEACH BAG ──
   txt("✦ BEACH BAG ✦",W/2,922,"700 14px 'DM Mono'",LEAF,"center",3);
-  BAG.forEach((bg,i)=>{const bx=126+i*272;
-    ctx.save();rr(bx,942,238,80,22);ctx.fillStyle="#FFF3CC";ctx.fill();ctx.strokeStyle=PINK;ctx.lineWidth=3;ctx.stroke();ctx.restore();
-    txt(bg[0],bx+28,982,"26px serif",FOREST,"left");
-    txt(bg[1],bx+72,982,"700 22px 'Bebas Neue'",FOREST,"left",3);
+  BAG.forEach((bg,i)=>{const bx=126+i*272, bw=238, by=942, bh=80;
+    ctx.save();rr(bx,by,bw,bh,22);ctx.fillStyle="#FFF3CC";ctx.fill();ctx.strokeStyle=PINK;ctx.lineWidth=3;ctx.stroke();ctx.restore();
+    // measure emoji + gap + label to centre the whole unit inside the box
+    const emojiSize=26, gap=10, labelFont="700 22px 'Bebas Neue'";
+    ctx.font=emojiSize+"px serif";
+    const ew=ctx.measureText(bg[0]).width;
+    ctx.font=labelFont;
+    let lw=0;for(const ch of bg[1])lw+=ctx.measureText(ch).width+3;lw-=3;
+    const totalW=ew+gap+lw;
+    const startX=bx+(bw-totalW)/2;
+    txt(bg[0],startX+ew/2,by+bh/2,emojiSize+"px serif",FOREST,"center");
+    txt(bg[1],startX+ew+gap,by+bh/2,labelFont,FOREST,"left",3);
   });
 
   // ── 5. PERFORATION ──
@@ -422,10 +448,15 @@ async function loadPhoto(dataURL){
   window._lastBuilder = builder;
   window._lastPhotoDataURL = builder.photo || null;
 
-  document.fonts.ready.then(async()=>{
-    const photoImg=await loadPhoto(builder.photo||null);
-    drawVerifyID(builder,photoImg);
-  });
+  await document.fonts.ready;
+  await Promise.all([
+    document.fonts.load("72px 'Bebas Neue'"),
+    document.fonts.load("700 68px 'Alfa Slab One'"),
+    document.fonts.load("700 40px 'Space Grotesk'"),
+    document.fonts.load("500 15px 'DM Mono'"),
+  ]).catch(()=>{});
+  const photoImg=await loadPhoto(builder.photo||null);
+  drawVerifyID(builder,photoImg);
 })();
 </script>
 </body>

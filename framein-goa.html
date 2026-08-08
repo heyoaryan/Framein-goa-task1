@@ -152,17 +152,15 @@ footer{text-align:center;font-family:"DM Mono",monospace;font-size:10px;letter-s
 </div>
 
 <script>
-// ─── CONFIG — replace with your actual values after deploying ────────
-const SUPABASE_URL     = "https://fxxnnvnplwnalplsxivf.supabase.co";       // e.g. https://xxxx.supabase.co
-const SUPABASE_ANON_KEY= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4eG5udm5wbHduYWxwbHN4aXZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTk2MDIsImV4cCI6MjEwMTY5NTYwMn0.IGLXb0UB08Tupx9nZcNPzmFe-u09Y0aW5-RgtuaxQ8k";  // anon public key
-const SITE_URL         = "https://framein-goa-task1.netlify.app";  // e.g. https://hhgoa.vercel.app
-const VERIFY_URL       = SITE_URL + "/verify.html"; // QR scans go here
-// ─────────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = "https://fxxnnvnplwnalplsxivf.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4eG5udm5wbHduYWxwbHN4aXZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTk2MDIsImV4cCI6MjEwMTY5NTYwMn0.IGLXb0UB08Tupx9nZcNPzmFe-u09Y0aW5-RgtuaxQ8k";
+const SITE_URL          = "https://framein-goa-task1.netlify.app";
+const VERIFY_URL        = SITE_URL + "/verify.html";
 
 const CREAM="#F7EFD8", PAPER="#FDF8EC", FOREST="#0E3B2A", LEAF="#1B6B43",
       PINK="#E51A5A", SUN="#FFC72C", INK="#0B2A1E", SAND="#F2E2BC";
 
-/* ── Preload 2:47PM Studio logo ── */
+/* preload studio logo */
 const _studioLogo = new Image();
 _studioLogo.onload = () => { if(ready) render(); };
 _studioLogo.src = "public/2:47PM.png";
@@ -186,16 +184,13 @@ function combinedHash(n,r,s){return hash((n||"builder")+"|"+(r||"")+"|"+(s||""))
 function autoClass(n,r,s){return CLASSES[combinedHash(n,r,s)%CLASSES.length]}
 function builderId(n,r,s){return "#HH-GOA-"+String(1+combinedHash(n,r,s)%247).padStart(3,"0")}
 
-/* ---- QR via qrcode-generator library (auto version, handles long URLs) ---- */
 function makeQRCanvas(text, x, y, size, darkColor, lightColor){
-  // qrcode-generator: typeNumber 0 = auto, M = medium error correction
   const qr = qrcode(0, 'M');
   qr.addData(text);
   qr.make();
   const N = qr.getModuleCount();
   const cell = size / N;
   ctx.save();
-  // background + quiet zone
   ctx.fillStyle = lightColor || "#ffffff";
   ctx.fillRect(x - cell * 2, y - cell * 2, size + cell * 4, size + cell * 4);
   ctx.fillStyle = darkColor || FOREST;
@@ -231,7 +226,6 @@ function star(x,y,r,c){ctx.save();ctx.fillStyle=c;ctx.beginPath();
     ctx.quadraticCurveTo(x+Math.cos(a-.35)*r*.3,y+Math.sin(a-.35)*r*.3,x,y);}
   ctx.fill();ctx.restore()}
 function frond(bx,by,ang,len,curve,cA,cB){
-  // spine control points
   const ex=bx+Math.cos(ang)*len, ey=by+Math.sin(ang)*len;
   const nx=Math.cos(ang+Math.PI/2), ny=Math.sin(ang+Math.PI/2);
   const cxp=bx+Math.cos(ang)*len*.55+nx*curve, cyp=by+Math.sin(ang)*len*.55+ny*curve;
@@ -241,7 +235,6 @@ function frond(bx,by,ang,len,curve,cA,cB){
     const t=i/N,[px,py]=pt(t),[qx,qy]=pt(Math.max(0,t-1/N));
     let dx=px-qx,dy=py-qy;const d=Math.hypot(dx,dy)||1;dx/=d;dy/=d;
     const px2=-dy,py2=dx;
-    // leaflet length profile: short at base, fat mid, tapering to tip
     const prof=Math.sin(Math.pow(t,.72)*Math.PI)*(1-t*.28);
     const L=len*.30*prof, sweep=len*.13*prof;
     if(L<1)continue;
@@ -256,16 +249,14 @@ function frond(bx,by,ang,len,curve,cA,cB){
       ctx.closePath();ctx.fill();
     }
   }
-  // spine
   ctx.strokeStyle=cA;ctx.lineWidth=Math.max(1.6,len*.022);ctx.lineCap="round";
   ctx.beginPath();ctx.moveTo(bx,by);ctx.quadraticCurveTo(cxp,cyp,ex,ey);ctx.stroke();
 }
 function palm(x,y,s,flip){
   ctx.save();ctx.translate(x,y);ctx.scale(flip?-s:s,s);
   const G1="#1B6B43", G2="#0E3B2A", BARK="#8A5A2B", BARK2="#6B431E";
-  const H=132, LEAN=22;                       // trunk height + lean
+  const H=132, LEAN=22;
   const tip=[LEAN,-H];
-  // trunk: tapered, curved, with segment bands
   const baseW=13, tipW=5;
   const cxp=-14, cyp=-H*.55;
   const at=t=>{const u=1-t;return [u*u*0+2*u*t*cxp+t*t*tip[0], u*u*0+2*u*t*cyp+t*t*tip[1]]};
@@ -274,20 +265,16 @@ function palm(x,y,s,flip){
     if(i===0)ctx.moveTo(px-w,py);else ctx.lineTo(px-w,py)}
   for(let i=20;i>=0;i--){const t=i/20,[px,py]=at(t);const w=baseW+(tipW-baseW)*t;ctx.lineTo(px+w,py)}
   ctx.closePath();ctx.fillStyle=BARK;ctx.fill();
-  // bands
   ctx.save();ctx.clip();ctx.strokeStyle=BARK2;ctx.lineWidth=2.4;
   for(let i=1;i<19;i++){const t=i/20,[px,py]=at(t);
     ctx.beginPath();ctx.moveTo(px-16,py+3);ctx.quadraticCurveTo(px,py-3,px+16,py+3);ctx.stroke()}
   ctx.restore();
-  // fronds
   const set=[[-1.95,74,26],[-1.40,84,30],[-0.85,80,22],[-2.55,80,-26],[-3.05,74,-30],[-0.30,64,16],[-3.55,62,-18]];
   set.forEach(f=>frond(tip[0],tip[1]+2,f[0],f[1],f[2],G1,G2));
-  // coconuts
   ctx.fillStyle="#5E3B18";
   [[-9,-H+9],[9,-H+11],[0,-H+18]].forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],6.2,0,7);ctx.fill()});
   ctx.fillStyle="rgba(255,255,255,.22)";
   [[-11,-H+7],[7,-H+9]].forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],2.1,0,7);ctx.fill()});
-  // ground tuft
   ctx.strokeStyle=G1;ctx.lineWidth=4;ctx.lineCap="round";
   [[-26,-10],[-16,-16],[18,-14],[28,-8]].forEach(p=>{ctx.beginPath();ctx.moveTo(0,2);
     ctx.quadraticCurveTo(p[0]*.6,p[1]*1.4,p[0],p[1]);ctx.stroke()});
@@ -335,25 +322,21 @@ function dotRing(cx,cy,r,c1,c2,n=64){ctx.save();for(let i=0;i<n;i++){const a=i/n
 
 /* ---------- rising sun (PFP bottom band) ---------- */
 function drawRisingSun(cx,hy,r){
-  // hy = horizon y. sun rises from horizon upward, so center is at hy
   const rayCount=12, rayLen=r*0.72, rayW=r*0.07;
   ctx.save();
-  // glow halo behind sun
   const glow=ctx.createRadialGradient(cx,hy,r*.4,cx,hy,r*2.2);
   glow.addColorStop(0,"rgba(255,199,44,.35)");
   glow.addColorStop(1,"rgba(255,199,44,0)");
   ctx.fillStyle=glow;ctx.beginPath();ctx.arc(cx,hy,r*2.2,Math.PI,0);ctx.fill();
-  // rays — only above horizon
   ctx.strokeStyle=SUN;ctx.lineWidth=rayW;ctx.lineCap="round";
   for(let i=0;i<rayCount;i++){
-    const a=Math.PI+(i/(rayCount-1))*Math.PI; // spread from left-π to right-2π (i.e. above)
+    const a=Math.PI+(i/(rayCount-1))*Math.PI;
     const gap=r*1.18;
     ctx.beginPath();
     ctx.moveTo(cx+Math.cos(a)*gap, hy+Math.sin(a)*gap);
     ctx.lineTo(cx+Math.cos(a)*(gap+rayLen), hy+Math.sin(a)*(gap+rayLen));
     ctx.stroke();
   }
-  // reflection on water (3 short wavy streaks below horizon)
   ctx.strokeStyle="rgba(255,199,44,.55)";ctx.lineWidth=r*0.055;
   for(let j=0;j<3;j++){
     const ry=hy+r*.28+j*r*.26, rw=r*(1-.3*j);
@@ -363,31 +346,25 @@ function drawRisingSun(cx,hy,r){
     ctx.quadraticCurveTo(cx+rw*.4,ry+r*.07,cx+rw,ry);
     ctx.stroke();
   }
-  // semi-circle sun body
   ctx.fillStyle=SUN;
   ctx.beginPath();ctx.arc(cx,hy,r,Math.PI,0);ctx.fill();
-  // horizon line
   ctx.strokeStyle=SUN;ctx.lineWidth=r*0.09;ctx.lineCap="butt";
   ctx.beginPath();ctx.moveTo(cx-r*1.6,hy);ctx.lineTo(cx+r*1.6,hy);ctx.stroke();
   ctx.restore();
 }
 
-/* ---------- PFP ---------- */
 function drawPFP(){
   cv.width=1080;cv.height=1080;const S=1080,c=S/2;
-  const R=286;                       // photo radius (smaller, more frame)
+  const R=286;
   ctx.fillStyle=CREAM;ctx.fillRect(0,0,S,S);
   ctx.save();ctx.strokeStyle="rgba(27,107,67,.09)";ctx.lineWidth=13;
   for(let i=-S;i<S*2;i+=42){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i-S,S);ctx.stroke()}ctx.restore();
 
-  // sky + sun behind
   sunRays(c,c,430,"#FFF6DF","rgba(255,199,44,.30)");
 
-  // scenery band (kept outside the ring, no text near it)
   ctx.save();ctx.fillStyle=LEAF;
   ctx.beginPath();ctx.moveTo(0,S);ctx.lineTo(0,S-150);ctx.quadraticCurveTo(c,S-232,S,S-150);ctx.lineTo(S,S);ctx.fill();ctx.restore();
 
-  // cute rising sun in the green band, centered
   drawRisingSun(c, S-162, 56);
 
   waves(60,S-124,960,"rgba(253,248,236,.5)",2);
@@ -395,12 +372,10 @@ function drawPFP(){
   palm(150,318,.72,false);palm(930,318,.72,true);
   star(300,180,30,PINK);star(780,176,26,SUN);star(96,600,24,SUN);star(984,616,26,PINK);
 
-  // frame rings
   ctx.save();ctx.beginPath();ctx.arc(c,c,R+128,0,7);ctx.fillStyle=PAPER;ctx.fill();
   ctx.strokeStyle=FOREST;ctx.lineWidth=22;ctx.stroke();ctx.restore();
   ctx.save();ctx.beginPath();ctx.arc(c,c,R+104,0,7);ctx.strokeStyle=PINK;ctx.lineWidth=7;ctx.stroke();ctx.restore();
 
-  // curved lockup text — sits in the paper band, nothing else drawn there
   ctx.save();ctx.translate(c,c);ctx.fillStyle=FOREST;ctx.font="700 33px 'Space Grotesk'";
   ctx.textAlign="center";ctx.textBaseline="middle";
   const ring="HACKER HOUSE GOA 2026 ★ 28–31 OCT ★ BUILD · SHIP · REPEAT ★ ";
@@ -414,30 +389,19 @@ function drawPFP(){
   photoCircle(c,c,R);
   ctx.save();ctx.beginPath();ctx.arc(c,c,R,0,7);ctx.strokeStyle=PAPER;ctx.lineWidth=9;ctx.stroke();ctx.restore();
 
-  // top tag
   ctx.save();rr(c-140,22,280,100,26);ctx.fillStyle=PINK;ctx.fill();ctx.strokeStyle=FOREST;ctx.lineWidth=6;ctx.stroke();ctx.restore();
   txt("HH GOA",c,58,"700 32px 'Space Grotesk'",SUN,"center",4);
   txt("2026",c,94,"700 24px 'Space Grotesk'",PAPER,"center",6);
   ribbon(c,S-92,500,64,"#FRAMEINGOA");
 
-  // ── 2:47PM Studio logo — bottom-right, bg matched to green band ──
   if(_studioLogo.complete && _studioLogo.naturalWidth > 0){
     const logoW = 130, logoH = Math.round(logoW * (_studioLogo.naturalHeight / _studioLogo.naturalWidth));
     const lx = S - logoW - 28, ly = S - logoH - 8;
-    // paint exact LEAF color behind logo so its bg blends seamlessly
-    ctx.save();
-    ctx.fillStyle = LEAF;
-    ctx.fillRect(lx, ly, logoW, logoH);
-    ctx.restore();
-    ctx.save();
-    ctx.globalCompositeOperation = "source-over";
-    ctx.globalAlpha = 1;
-    ctx.drawImage(_studioLogo, lx, ly, logoW, logoH);
-    ctx.restore();
+    ctx.save();ctx.fillStyle=LEAF;ctx.fillRect(lx,ly,logoW,logoH);ctx.restore();
+    ctx.save();ctx.drawImage(_studioLogo,lx,ly,logoW,logoH);ctx.restore();
   }
 }
 
-/* ---------- BUILDER ID (boarding-pass style) ---------- */
 function drawID(){
   const W=1040,H=1500;cv.width=W;cv.height=H;
   const hasName=($("name").value||"").trim().length>0;
@@ -454,50 +418,55 @@ function drawID(){
   ctx.fillStyle="rgba(27,107,67,.05)";
   for(let y=60;y<H;y+=46)for(let x=60;x<W;x+=46){ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill()}
 
-  /* ---- 1. HEADER BAND (forest) ---- */
   const hb=232;
   ctx.save();ctx.beginPath();ctx.moveTo(42,42);ctx.lineTo(W-42,42);ctx.lineTo(W-42,hb);
   ctx.quadraticCurveTo(W/2,hb+58,42,hb);ctx.closePath();ctx.fillStyle=FOREST;ctx.fill();ctx.restore();
-  // lanyard slot
   ctx.save();rr(W/2-92,66,184,26,13);ctx.fillStyle=CREAM;ctx.fill();ctx.restore();
 
-  // ── HEADER TEXT: "HACKER HOUSE" then "गोवा" — same vibe as page h1 ──
+  // ── HEADER TEXT: "HACKER" + tilted "गोवा" + "HOUSE" ──
   ctx.save();ctx.textBaseline="middle";ctx.textAlign="left";
 
-  // Measure each part with their respective fonts
   ctx.font="72px 'Bebas Neue'";
-  const wa=ctx.measureText("HACKER HOUSE ").width;
+  const wHacker = ctx.measureText("HACKER ").width;
+  const wHouse  = ctx.measureText(" HOUSE").width;
   ctx.font="bold 68px 'Alfa Slab One', serif";
-  const wb=ctx.measureText("गोवा").width;
+  const wGoa    = ctx.measureText("गोवा").width;
 
-  let sx=W/2-(wa+wb)/2;
+  const totalW = wHacker + wGoa + wHouse;
+  let sx = W/2 - totalW/2;
 
-  // "HACKER HOUSE " — Bebas Neue, cream
+  // "HACKER " — Bebas Neue, cream
   ctx.font="72px 'Bebas Neue'";
   ctx.fillStyle=CREAM;
-  ctx.fillText("HACKER HOUSE ",sx,152);sx+=wa;
+  ctx.fillText("HACKER ",sx,152);
+  sx += wHacker;
 
-  // "गोवा" — Alfa Slab One, sun yellow + pink hard shadow (exact match to page h1 em)
+  // "गोवा" — tilted ~-8deg, Alfa Slab One, sun yellow + pink shadow
+  ctx.save();
+  ctx.translate(sx + wGoa/2, 152);
+  ctx.rotate(-0.14);  // ~-8 degrees
   ctx.font="bold 68px 'Alfa Slab One', serif";
   ctx.fillStyle=PINK;
-  ctx.fillText("गोवा",sx+3,152+3);  // pink shadow offset
+  ctx.fillText("गोवा", -wGoa/2 + 3, 3);
   ctx.fillStyle=SUN;
-  ctx.fillText("गोवा",sx,152);
+  ctx.fillText("गोवा", -wGoa/2, 0);
+  ctx.restore();
+  sx += wGoa;
+
+  // " HOUSE" — Bebas Neue, cream
+  ctx.font="72px 'Bebas Neue'";
+  ctx.fillStyle=CREAM;
+  ctx.fillText(" HOUSE",sx,152);
   ctx.restore();
 
   txt("GOA, INDIA · 28–31 OCT 2026",W/2,200,"700 20px 'Space Grotesk'",SUN,"center",4);
 
-  // ── 2:47PM Studio logo — top RIGHT of header band ──
   if(_studioLogo.complete && _studioLogo.naturalWidth > 0){
     const logoW = 110, logoH = Math.round(logoW * (_studioLogo.naturalHeight / _studioLogo.naturalWidth));
-    const lx = W - 42 - logoW - 14, ly = 58;
-    ctx.save();
-    ctx.globalAlpha = 0.92;
-    ctx.drawImage(_studioLogo, lx, ly, logoW, logoH);
-    ctx.restore();
+    ctx.save();ctx.globalAlpha=0.92;ctx.drawImage(_studioLogo,W-42-logoW-14,58,logoW,logoH);ctx.restore();
   }
 
-  /* ---- 2. PHOTO: portrait window, left aligned; meta on right ---- */
+  /* ---- photo + meta ---- */
   const pw=352,ph=422,pxx=88,pyy=316;
   sunRays(pxx+pw/2,pyy+ph/2,240,"rgba(255,246,223,.95)","rgba(255,199,44,.20)");
   ctx.save();rr(pxx-12,pyy-12,pw+24,ph+24,34);ctx.fillStyle=PAPER;ctx.fill();
@@ -513,7 +482,6 @@ function drawID(){
   ctx.restore();
   ctx.save();rr(pxx,pyy,pw,ph,26);ctx.strokeStyle=SUN;ctx.lineWidth=6;ctx.stroke();ctx.restore();
 
-  // right meta stack — each block in its own box, no overlap
   const mx=486,mw=W-42-mx-46;
   const field=(y,h,label,value,valColor,size)=>{
     ctx.save();rr(mx,y,mw,h,20);ctx.fillStyle=PAPER;ctx.fill();
@@ -532,29 +500,36 @@ function drawID(){
   field(552,100,"BUILDER CLASS",cls,PINK,28);
   field(666,86,"BUILDER ID",hasName?builderId(name,role,ship):"—",INK,26);
 
-  /* ---- 3. SHIPPING STRIP ---- */
+  /* ---- shipping ---- */
   ctx.save();rr(88,772,W-176,104,26);ctx.fillStyle=FOREST;ctx.fill();
   ctx.strokeStyle=SUN;ctx.lineWidth=5;ctx.stroke();ctx.restore();
   txt("✦ CURRENTLY SHIPPING ✦",W/2,806,"700 16px 'Space Grotesk'",SUN,"center",3);
   fitTxt(ship,W/2,846,W-260,34,"__ 'Bebas Neue'",PAPER,3);
 
-  /* ---- 4. BEACH BAG row ---- */
+  /* ---- beach bag ---- */
   txt("✦ BEACH BAG ✦",W/2,922,"700 14px 'DM Mono'",LEAF,"center",3);
-  BAG.forEach((b,i)=>{const bx=126+i*272;
-    ctx.save();rr(bx,942,238,80,22);ctx.fillStyle="#FFF3CC";ctx.fill();
+  BAG.forEach((b,i)=>{const bx=126+i*272, bw=238, by=942, bh=80;
+    ctx.save();rr(bx,by,bw,bh,22);ctx.fillStyle="#FFF3CC";ctx.fill();
     ctx.strokeStyle=PINK;ctx.lineWidth=3;ctx.stroke();ctx.restore();
-    // emoji
-    txt(b[0],bx+28,982,"26px serif",FOREST,"left");
-    // label — Bebas Neue for that bold stamp look
-    txt(b[1],bx+72,982,"700 22px 'Bebas Neue'",FOREST,"left",3)});
+    // measure emoji + gap + label to centre the whole unit inside the box
+    const emojiSize=26, gap=10, labelFont="700 22px 'Bebas Neue'";
+    ctx.font=emojiSize+"px serif";
+    const ew=ctx.measureText(b[0]).width;
+    ctx.font=labelFont;
+    let lw=0;for(const ch of b[1])lw+=ctx.measureText(ch).width+3;lw-=3;
+    const totalW=ew+gap+lw;
+    const startX=bx+(bw-totalW)/2;
+    txt(b[0],startX+ew/2,by+bh/2,emojiSize+"px serif",FOREST,"center");
+    txt(b[1],startX+ew+gap,by+bh/2,labelFont,FOREST,"left",3);
+  });
 
-  /* ---- 5. perforation ---- */
+  /* ---- perforation ---- */
   ctx.save();ctx.strokeStyle="rgba(14,59,42,.45)";ctx.lineWidth=4;ctx.setLineDash([12,14]);
   ctx.beginPath();ctx.moveTo(70,1064);ctx.lineTo(W-70,1064);ctx.stroke();ctx.restore();
   ctx.save();ctx.fillStyle=SUN;ctx.beginPath();ctx.arc(42,1064,26,0,7);ctx.fill();
   ctx.beginPath();ctx.arc(W-42,1064,26,0,7);ctx.fill();ctx.restore();
 
-  /* ---- 6. STUB: QR scanner slot (left) + stub meta (right) ---- */
+  /* ---- stub ---- */
   const sy=1074;
   const qrFrame=176, qrPad=10;
   const bid=hasName?builderId(name,role,ship):null;
