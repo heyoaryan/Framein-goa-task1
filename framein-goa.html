@@ -925,11 +925,11 @@ async function saveBuilder(){
                     && existing.shipping === shipVal;
 
     if(sameEntry){
-      // exact duplicate — already registered, block and show message
+      // exact duplicate — already registered, allow download/share but show a toast
       window._alreadyRegistered = true;
       render(); // redraw without barcode/scanner
-      showToast("Already registered! " + bid, "error");
-      return false;
+      showToast("Already registered! " + bid, "info");
+      return true; // still allow download + share
     } else {
       // same hash → same ID number but different details → ID collision, block
       showToast("Builder ID " + bid + " is already taken — try a slightly different name", "error");
