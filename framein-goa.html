@@ -533,7 +533,6 @@ function drawID(){
   const sy=1074;
   const qrFrame=176, qrPad=10;
   const bid=hasName?builderId(name,role,ship):null;
-  const bidNum=bid?bid.replace("#HH-GOA-",""):"";
 
   // outer card for QR area
   const qrCardX=72, qrCardY=sy+4, qrCardW=qrFrame+36, qrCardH=qrFrame+96;
@@ -549,8 +548,7 @@ function drawID(){
   ctx.strokeStyle=SUN;ctx.lineWidth=4;ctx.stroke();ctx.restore();
 
   if(hasName){
-    // QR encodes a short URL so scanning opens a digital verification page
-    const qrURL=VERIFY_URL+"?id="+bidNum;
+    const qrURL=VERIFY_URL+"?id="+encodeURIComponent(bid);
     const qrSize=qrFrame-qrPad*2;
     makeQRCanvas(qrURL, innerX+qrPad, innerY+qrPad, qrSize, FOREST, "#FFFFFF");
 
@@ -917,11 +915,9 @@ async function saveBuilder(){
   const roleVal = ($("role").value||"").trim().toUpperCase();
   const shipVal = ($("shipping").value||"").trim().toUpperCase();
   const bid     = builderId(nameUp, roleVal, shipVal);
-  const bidNum  = bid.replace("#HH-GOA-","");
   const cls     = ($("cls").value||autoClass(nameUp, roleVal, shipVal)).toUpperCase();
 
-  // check if this ID already exists
-  const existing = await builderExists(bidNum);
+  const existing = await builderExists(bid);
 
   if(existing){
     const sameEntry  = existing.name     === nameUp
@@ -955,7 +951,7 @@ async function saveBuilder(){
         "Prefer":          "resolution=merge-duplicates"
       },
       body: JSON.stringify({
-        id:            bidNum,
+        id:            bid,
         name:          nameUp,
         role:          ($("role").value||"").trim().toUpperCase(),
         shipping:      ($("shipping").value||"").trim().toUpperCase(),

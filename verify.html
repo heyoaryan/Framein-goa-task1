@@ -244,7 +244,6 @@ function drawVerifyID(b, photoImg){
   const cls    = (b.builder_class||autoClass(name,role,ship)).toUpperCase();
   // Recompute bid from all three fields — matches generation logic
   const bid    = builderId(name,role,ship);
-  const bidNum = bid.replace("#HH-GOA-","");
 
   ctx.clearRect(0,0,W,H);
 
@@ -363,7 +362,7 @@ function drawVerifyID(b, photoImg){
   ctx.save();rr(qrCardX,qrCardY,qrCardW,qrCardH,20);ctx.fillStyle=PAPER;ctx.fill();ctx.strokeStyle=FOREST;ctx.lineWidth=4;ctx.stroke();ctx.restore();
   const innerX=qrCardX+(qrCardW-qrFrame)/2,innerY=qrCardY+14;
   ctx.save();rr(innerX,innerY,qrFrame,qrFrame,14);ctx.fillStyle="#FFFFFF";ctx.fill();ctx.strokeStyle=SUN;ctx.lineWidth=4;ctx.stroke();ctx.restore();
-  const qrURL=VERIFY_URL+"?id="+bidNum;
+  const qrURL=VERIFY_URL+"?id="+encodeURIComponent(bid);
   makeQRCanvas(qrURL,innerX+qrPad,innerY+qrPad,qrFrame-qrPad*2,FOREST,"#FFFFFF");
   txt("SCAN TO VERIFY",qrCardX+qrCardW/2,innerY+qrFrame+20,"700 13px 'DM Mono',monospace",LEAF,"center",2);
   txt(bid,qrCardX+qrCardW/2,innerY+qrFrame+44,"700 19px 'Bebas Neue'",FOREST,"center",3);
@@ -423,7 +422,13 @@ async function loadPhoto(dataURL){
   let id=params.get("id");
   if(!id){const m=location.pathname.match(/\/v\/(\d+)$/);if(m)id=m[1];}
   if(!id){renderError("No builder ID in the URL.");return;}
-  id=String(parseInt(id,10)||0).padStart(3,"0");
+
+  // support both full format "#HH-GOA-003" and legacy bare number "003"
+  if(/^\d+$/.test(id)){
+    id="#HH-GOA-"+String(parseInt(id,10)||0).padStart(3,"0");
+  } else {
+    id = decodeURIComponent(id);
+  }
 
   let builder;
   try{
